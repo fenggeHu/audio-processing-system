@@ -1,0 +1,13 @@
+{
+  "sample_rate": 48000,
+  "frame_size": 480,
+  "channels": 8,
+  "buffer_size": 4096,
+  "enable_ssl": true,
+  "enable_beamforming": true,
+  "enable_aec": true,
+  "enable_denoise": true,
+  "enable_agc": true,
+  "max_latency_ms": 40.0,
+  "cpu_limit_percent": 80.0
+}
