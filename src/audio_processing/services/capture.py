@@ -7,16 +7,16 @@ management, multi-channel synchronized capture, buffering, and frame alignment.
 
 import asyncio
 import time
-from typing import Dict, List, Optional, AsyncGenerator, Any, Tuple
+from typing import Dict, List, Optional, AsyncGenerator, Any
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
 import numpy as np
 import structlog
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
-from ..exceptions import DeviceError, ProcessingError, ServiceError
+from ..models import AudioFrame, AudioConfig
+from ..exceptions import DeviceError
 
 logger = structlog.get_logger(__name__)
 
@@ -576,7 +576,7 @@ class CaptureService(BaseAudioProcessor):
             await self.stop()
         
         # Switch device
-        old_device = self._current_device
+        self._current_device
         self._current_device = new_device
         logger.info("Switched to device", device_name=new_device.name)
         

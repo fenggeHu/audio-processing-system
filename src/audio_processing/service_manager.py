@@ -13,7 +13,7 @@ import structlog
 from .interfaces import IAudioService, IMetricsCollector, IEventHandler
 from .models import AudioConfig, AudioMetrics
 from .container import DIContainer
-from .exceptions import ServiceError, DependencyError
+from .exceptions import ServiceError
 
 logger = structlog.get_logger(__name__)
 
@@ -308,34 +308,7 @@ class ServiceManager(IEventHandler):
             'new_config': config.model_dump()
         })
     
-    def subscribe_to_events(self, event_type: str, handler: IEventHandler) -> None:
-        """
-        Subscribe to system events.
-        
-        Args:
-            event_type: Type of event to subscribe to
-            handler: Event handler to register
-        """
-        if event_type not in self._event_handlers:
-            self._event_handlers[event_type] = []
-        
-        self._event_handlers[event_type].append(handler)
-        logger.debug("Event handler registered", event_type=event_type)
-    
-    def unsubscribe_from_events(self, event_type: str, handler: IEventHandler) -> None:
-        """
-        Unsubscribe from system events.
-        
-        Args:
-            event_type: Type of event to unsubscribe from
-            handler: Event handler to remove
-        """
-        if event_type in self._event_handlers:
-            try:
-                self._event_handlers[event_type].remove(handler)
-                logger.debug("Event handler removed", event_type=event_type)
-            except ValueError:
-                pass
+
     
     async def handle_event(self, event_type: str, event_data: Dict[str, Any]) -> None:
         """Handle system events (implements IEventHandler)."""

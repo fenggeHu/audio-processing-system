@@ -5,23 +5,17 @@ This module implements the AGCService with intelligent source type identificatio
 anti-howling protection, and differentiated gain control strategies for teachers and students.
 """
 
-import asyncio
-import time
-import math
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple, Union
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 import numpy as np
 import structlog
-from scipy import signal
 from collections import deque
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
-from ..exceptions import ProcessingError, ServiceError
+from ..models import AudioFrame, AudioConfig
+from ..exceptions import ProcessingError
 
 logger = structlog.get_logger(__name__)
 
@@ -884,7 +878,7 @@ class AGCService(BaseAudioProcessor):
                            howling_detected: bool) -> None:
         """Update AGC performance metrics."""
         # Calculate levels
-        input_level = self._calculate_level_db(input_signal)
+        self._calculate_level_db(input_signal)
         output_level = self._calculate_level_db(output_signal)
         
         # Update metrics

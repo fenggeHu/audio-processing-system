@@ -6,7 +6,6 @@ Configuration Generator
 为不同的部署场景生成配置文件模板
 """
 
-import os
 import json
 from pathlib import Path
 from typing import Dict, Any, List

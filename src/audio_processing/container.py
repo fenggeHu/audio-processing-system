@@ -7,7 +7,7 @@ and lifecycle.
 """
 
 import asyncio
-from typing import Dict, Any, Type, TypeVar, Callable, Optional, List, Set
+from typing import Dict, Any, Type, TypeVar, Callable, List, Set
 import inspect
 import structlog
 

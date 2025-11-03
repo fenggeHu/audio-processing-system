@@ -11,16 +11,15 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional, Set
 from pathlib import Path
 import structlog
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Depends
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 import uvicorn
 
 from ..base import BaseAudioProcessor
-from ..models import AudioConfig, AudioMetrics, ProcessingResult
-from ..interfaces import IAudioService, IEventHandler
-from ..exceptions import ServiceError, ConfigError
+from ..models import AudioConfig
+from ..interfaces import IEventHandler
 from ..service_manager import ServiceManager
 
 logger = structlog.get_logger(__name__)
@@ -282,7 +281,7 @@ class ControlService(BaseAudioProcessor, IEventHandler):
             try:
                 service = await self.service_manager.get_service_by_name(service_name)
                 return service.get_metrics().model_dump()
-            except Exception as e:
+            except Exception:
                 raise HTTPException(status_code=404, detail=f"Service not found: {service_name}")
         
         @self.app.websocket("/ws")

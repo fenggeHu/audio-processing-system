@@ -64,16 +64,32 @@ audio-processing-system/
 │       ├── base.py               # Base classes
 │       ├── service_manager.py    # Service coordination
 │       ├── plugin_manager.py     # Plugin management
+│       ├── config_manager.py     # Configuration management
 │       ├── container.py          # Dependency injection
+│       ├── error_handler.py      # Error handling
+│       ├── fault_tolerance.py    # Fault tolerance
+│       ├── quality_assessment.py # Quality assessment
+│       ├── communication/        # Communication framework
+│       │   ├── event_bus.py      # Event system
+│       │   ├── message_router.py # Message routing
+│       │   └── audio_pipeline.py # Processing pipeline
 │       └── services/
 │           ├── control.py        # Web control service
 │           ├── beamformer.py     # Beamforming service
 │           ├── agc.py           # AGC service
-│           └── aec.py           # AEC service
+│           ├── aec.py           # AEC service
+│           ├── denoise.py       # Noise reduction
+│           ├── ssl.py           # Sound source localization
+│           ├── capture.py       # Audio capture
+│           ├── mixer.py         # Audio mixing
+│           ├── recorder.py      # Audio recording
+│           └── telemetry.py     # Monitoring
 ├── plugins/                      # Plugin directory
 ├── docs/                        # Documentation
-├── tests/                       # Test suite
+├── tests/                       # Consolidated test suite
 ├── examples/                    # Example code
+├── tools/                       # Development and deployment tools
+├── config/                      # Configuration files
 └── deploy/                      # Deployment configs
 ```
 

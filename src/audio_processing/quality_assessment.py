@@ -6,7 +6,7 @@ tools for validating the effectiveness of audio processing algorithms.
 """
 
 import numpy as np
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 import scipy.signal
 from scipy.fft import fft, fftfreq
@@ -45,7 +45,6 @@ class AudioQualityAssessment:
     
     def __init__(self, sample_rate: int = 48000):
         self.sample_rate = sample_rate
-        self.reference_signals = self._generate_reference_signals()
     
     def assess_frame_quality(self, frame: AudioFrame, 
                            reference_frame: Optional[AudioFrame] = None) -> QualityMetrics:
@@ -473,33 +472,3 @@ class AudioQualityAssessment:
         
         return aggregated
     
-    def _generate_reference_signals(self) -> Dict[str, np.ndarray]:
-        """Generate reference signals for testing."""
-        duration = 1.0  # 1 second
-        samples = int(duration * self.sample_rate)
-        t = np.linspace(0, duration, samples)
-        
-        references = {
-            'sine_1khz': np.sin(2 * np.pi * 1000 * t),
-            'white_noise': np.random.normal(0, 0.1, samples),
-            'chirp': scipy.signal.chirp(t, 20, duration, 20000),
-            'speech_like': self._generate_speech_like_signal(t)
-        }
-        
-        return references
-    
-    def _generate_speech_like_signal(self, t: np.ndarray) -> np.ndarray:
-        """Generate speech-like test signal."""
-        # Combine multiple harmonics typical of speech
-        fundamental = 150  # Hz
-        signal = (
-            0.5 * np.sin(2 * np.pi * fundamental * t) +
-            0.3 * np.sin(2 * np.pi * fundamental * 2 * t) +
-            0.2 * np.sin(2 * np.pi * fundamental * 3 * t) +
-            0.1 * np.sin(2 * np.pi * fundamental * 4 * t)
-        )
-        
-        # Apply speech-like envelope
-        envelope = np.exp(-t * 0.5) * (1 + 0.5 * np.sin(2 * np.pi * 5 * t))
-        
-        return signal * envelope

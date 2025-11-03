@@ -371,25 +371,10 @@ configure_logrotate() {
     sudo tee /etc/logrotate.d/audio-processing > /dev/null << EOF
 $INSTALL_DIR/logs/*.log {
     daily
-    missingok
-    rotate 30
-    compress
-    delaycompress
-    notifempty
-    create 644 $USER $USER
-    postrotate
-        systemctl reload audio-processing || true
-    endscript
-}
-
-$INSTALL_DIR/logs/*/*.log {
-    daily
-    missingok
     rotate 7
     compress
-    delaycompress
+    missingok
     notifempty
-    create 644 $USER $USER
 }
 EOF
 
@@ -401,19 +386,10 @@ configure_firewall() {
     log_info "配置防火墙..."
     
     if command -v ufw &> /dev/null; then
-        sudo ufw allow 22/tcp
         sudo ufw allow 80/tcp
-        sudo ufw allow 443/tcp
         sudo ufw allow 8000/tcp
         sudo ufw --force enable
         log_success "UFW防火墙配置完成"
-    elif command -v firewall-cmd &> /dev/null; then
-        sudo firewall-cmd --permanent --add-service=ssh
-        sudo firewall-cmd --permanent --add-service=http
-        sudo firewall-cmd --permanent --add-service=https
-        sudo firewall-cmd --permanent --add-port=8000/tcp
-        sudo firewall-cmd --reload
-        log_success "FirewallD配置完成"
     else
         log_warning "未检测到防火墙，请手动配置"
     fi
@@ -543,7 +519,6 @@ main() {
     copy_application
     configure_services
     configure_nginx
-    configure_logrotate
     configure_firewall
     create_startup_script
     run_tests

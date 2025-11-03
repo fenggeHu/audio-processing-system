@@ -7,11 +7,8 @@ and prevent malicious or buggy plugins from affecting the system.
 
 import asyncio
 import sys
-import os
-import threading
 import time
-from typing import Dict, Any, Optional, Set, List, Callable
-from contextlib import contextmanager
+from typing import Dict, Any, Optional, Set, List
 import structlog
 
 from .exceptions import PluginError
@@ -293,41 +290,7 @@ class PluginSandbox:
             )
             raise PluginError(f"Function execution failed: {e}")
     
-    def validate_import(self, module_name: str) -> bool:
-        """
-        Validate if module import is allowed.
-        
-        Args:
-            module_name: Name of module to import
-            
-        Returns:
-            True if import is allowed
-        """
-        if module_name in self.restricted_modules:
-            return False
-        
-        for restricted in self.restricted_modules:
-            if module_name.startswith(restricted + '.'):
-                return False
-        
-        return True
-    
-    def get_sandbox_info(self) -> Dict[str, Any]:
-        """
-        Get information about sandbox configuration and state.
-        
-        Returns:
-            Dictionary with sandbox information
-        """
-        return {
-            'plugin_name': self.plugin_name,
-            'is_active': self._is_active,
-            'allowed_modules': list(self.allowed_modules),
-            'restricted_modules': list(self.restricted_modules),
-            'max_memory_mb': self.max_memory_mb,
-            'max_cpu_time_ms': self.max_cpu_time_ms,
-            'execution_timeout': self.execution_timeout
-        }
+
     
     async def _cleanup(self) -> None:
         """Cleanup sandbox resources."""

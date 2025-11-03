@@ -348,7 +348,7 @@ sudo systemctl status audio-processing
 sudo journalctl -u audio-processing -f
 
 # 检查配置文件
-python3 -c "import json; json.load(open('/opt/audio-processing-system/config/production.json'))"
+python3 -c "import json; json.load(open('/opt/audio-processing-system/config/audio_system.json'))"
 
 # 检查端口占用
 sudo netstat -tlnp | grep 8000
@@ -409,7 +409,7 @@ top
 htop
 
 # 检查音频缓冲区设置
-cat /opt/audio-processing-system/config/production.json | grep -A5 -B5 buffer
+cat /opt/audio-processing-system/config/audio_system.json | grep -A5 -B5 buffer
 
 # 检查实时优先级
 ps -eo pid,pri,ni,comm | grep audio

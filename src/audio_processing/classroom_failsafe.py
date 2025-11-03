@@ -15,7 +15,7 @@ import structlog
 
 from .interfaces import IEventHandler, IAudioService
 from .error_handler import ErrorHandler, ErrorContext, RecoveryAction
-from .exceptions import ServiceError, DeviceError
+from .exceptions import ServiceError
 from .models import AudioConfig
 
 logger = structlog.get_logger(__name__)
@@ -286,7 +286,7 @@ class ClassroomFailsafeManager(IEventHandler):
         # For now, we'll simulate the beam direction change
         if "BeamformerService" in self._services:
             try:
-                beamformer = self._services["BeamformerService"]
+                self._services["BeamformerService"]
                 # Would call beamformer.set_target_zone(zone) or similar
                 logger.debug("Beam direction updated", zone=zone.value)
             except Exception as e:

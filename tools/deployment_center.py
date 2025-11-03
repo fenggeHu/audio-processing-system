@@ -6,7 +6,6 @@ Deployment Management Center
 统一的批量部署和设备管理工具
 """
 
-import os
 import sys
 import json
 import time

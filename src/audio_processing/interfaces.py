@@ -30,7 +30,6 @@ class IAudioService(ABC):
         Raises:
             ServiceError: If service fails to start
         """
-        pass
     
     @abstractmethod
     async def stop(self) -> None:
@@ -40,7 +39,6 @@ class IAudioService(ABC):
         Clean up resources, close connections, and gracefully
         shut down the service.
         """
-        pass
     
     @abstractmethod
     async def process(self, frame: AudioFrame) -> ProcessingResult:
@@ -53,7 +51,6 @@ class IAudioService(ABC):
         Returns:
             ProcessingResult containing the processed frame and metrics
         """
-        pass
     
     @abstractmethod
     def get_metrics(self) -> AudioMetrics:
@@ -63,7 +60,6 @@ class IAudioService(ABC):
         Returns:
             AudioMetrics object with current performance data
         """
-        pass
     
     @abstractmethod
     def get_config(self) -> AudioConfig:
@@ -73,7 +69,6 @@ class IAudioService(ABC):
         Returns:
             AudioConfig object with current settings
         """
-        pass
     
     @abstractmethod
     async def update_config(self, config: AudioConfig) -> None:
@@ -86,19 +81,16 @@ class IAudioService(ABC):
         Raises:
             ConfigError: If configuration is invalid or cannot be applied
         """
-        pass
     
     @property
     @abstractmethod
     def is_running(self) -> bool:
         """Check if the service is currently running."""
-        pass
     
     @property
     @abstractmethod
     def service_name(self) -> str:
         """Get the unique name of this service."""
-        pass
 
 
 class IMetricsCollector(ABC):
@@ -118,7 +110,6 @@ class IMetricsCollector(ABC):
             service_name: Name of the service
             latency_ms: Processing latency in milliseconds
         """
-        pass
     
     @abstractmethod
     def record_cpu_usage(self, service_name: str, cpu_percent: float) -> None:
@@ -129,7 +120,6 @@ class IMetricsCollector(ABC):
             service_name: Name of the service
             cpu_percent: CPU usage percentage
         """
-        pass
     
     @abstractmethod
     def record_memory_usage(self, service_name: str, memory_mb: float) -> None:
@@ -140,7 +130,6 @@ class IMetricsCollector(ABC):
             service_name: Name of the service
             memory_mb: Memory usage in megabytes
         """
-        pass
     
     @abstractmethod
     def record_audio_level(self, service_name: str, level_dbfs: float, 
@@ -153,7 +142,6 @@ class IMetricsCollector(ABC):
             level_dbfs: Audio level in dBFS
             is_input: True for input level, False for output level
         """
-        pass
     
     @abstractmethod
     def record_frame_drop(self, service_name: str) -> None:
@@ -163,7 +151,6 @@ class IMetricsCollector(ABC):
         Args:
             service_name: Name of the service that dropped the frame
         """
-        pass
     
     @abstractmethod
     def get_service_metrics(self, service_name: str) -> AudioMetrics:
@@ -176,7 +163,6 @@ class IMetricsCollector(ABC):
         Returns:
             AudioMetrics object with aggregated data
         """
-        pass
     
     @abstractmethod
     def get_system_metrics(self) -> Dict[str, AudioMetrics]:
@@ -186,7 +172,6 @@ class IMetricsCollector(ABC):
         Returns:
             Dictionary mapping service names to their metrics
         """
-        pass
     
     @abstractmethod
     def reset_metrics(self, service_name: Optional[str] = None) -> None:
@@ -196,7 +181,6 @@ class IMetricsCollector(ABC):
         Args:
             service_name: Service to reset, or None for all services
         """
-        pass
 
 
 class IConfigurable(ABC):
@@ -217,7 +201,6 @@ class IConfigurable(ABC):
         Returns:
             True if configuration is valid, False otherwise
         """
-        pass
     
     @abstractmethod
     async def apply_config(self, config: Dict[str, Any]) -> None:
@@ -230,7 +213,6 @@ class IConfigurable(ABC):
         Raises:
             ConfigError: If configuration cannot be applied
         """
-        pass
     
     @abstractmethod
     def get_config_schema(self) -> Dict[str, Any]:
@@ -240,7 +222,6 @@ class IConfigurable(ABC):
         Returns:
             JSON schema describing valid configuration
         """
-        pass
 
 
 class IEventHandler(ABC):
@@ -260,7 +241,6 @@ class IEventHandler(ABC):
             event_type: Type of event (e.g., 'service_started', 'error_occurred')
             event_data: Event-specific data
         """
-        pass
     
     @abstractmethod
     def get_supported_events(self) -> List[str]:
@@ -270,7 +250,6 @@ class IEventHandler(ABC):
         Returns:
             List of supported event type strings
         """
-        pass
 
 
 class IStreamProcessor(ABC):
@@ -293,7 +272,6 @@ class IStreamProcessor(ABC):
         Yields:
             ProcessingResult objects for each processed frame
         """
-        pass
     
     @abstractmethod
     def get_stream_info(self) -> Dict[str, Any]:
@@ -303,7 +281,6 @@ class IStreamProcessor(ABC):
         Returns:
             Dictionary with stream metadata (sample rate, channels, etc.)
         """
-        pass
 
 
 class IPluginInterface(ABC):
@@ -322,7 +299,6 @@ class IPluginInterface(ABC):
         Returns:
             Dictionary with plugin name, version, description, etc.
         """
-        pass
     
     @abstractmethod
     def get_required_dependencies(self) -> List[str]:
@@ -332,7 +308,6 @@ class IPluginInterface(ABC):
         Returns:
             List of dependency names/versions
         """
-        pass
     
     @abstractmethod
     async def initialize(self, config: AudioConfig) -> None:
@@ -342,9 +317,7 @@ class IPluginInterface(ABC):
         Args:
             config: Audio system configuration
         """
-        pass
     
     @abstractmethod
     async def cleanup(self) -> None:
         """Clean up plugin resources."""
-        pass

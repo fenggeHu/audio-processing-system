@@ -6,14 +6,12 @@ Multi-Architecture Offline Package Builder
 支持为不同架构（x86_64, ARM64, ARMv7）构建离线部署包
 """
 
-import os
 import sys
-import json
 import subprocess
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 import argparse
 import logging
 import concurrent.futures
@@ -529,7 +527,7 @@ main "$@"
                     logger.error(f"架构 {arch} 构建失败: {e}")
         
         # 创建统一安装器
-        installer_path = self.create_unified_installer(arch_packages)
+        self.create_unified_installer(arch_packages)
         
         # 复制应用文件到输出目录
         self._copy_application_to_output()

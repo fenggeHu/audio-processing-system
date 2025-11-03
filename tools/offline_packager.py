@@ -6,7 +6,6 @@ Offline Dependency Package Builder
 用于创建包含所有Python和系统依赖的离线安装包，支持无网络环境的部署。
 """
 
-import os
 import sys
 import json
 import shutil
@@ -15,7 +14,7 @@ import tempfile
 import tarfile
 import hashlib
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List, Tuple
 import argparse
 import logging
 from dataclasses import dataclass, asdict
@@ -741,13 +740,13 @@ if __name__ == "__main__":
                 all_packages.extend(packages)
             
             # 创建系统依赖脚本
-            system_script = self.create_system_dependencies_script()
+            self.create_system_dependencies_script()
             
             # 创建离线安装器
-            installer_script = self.create_offline_installer()
+            self.create_offline_installer()
             
             # 创建验证脚本
-            verifier_script = self.create_dependency_verification()
+            self.create_dependency_verification()
             
             # 复制应用源码
             self._copy_application_files()

@@ -11,20 +11,18 @@ import os
 import json
 import hashlib
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Union, AsyncGenerator, Callable
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from typing import Dict, Any, Optional
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 import numpy as np
 import structlog
 from collections import deque
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
-from ..exceptions import ProcessingError, ServiceError
-from ..communication.audio_pipeline import AudioPipeline, PipelineNode
+from ..models import AudioFrame, AudioConfig
 
 logger = structlog.get_logger(__name__)
 
@@ -181,22 +179,18 @@ class AudioEncoder(ABC):
     @abstractmethod
     async def initialize(self, config: RecordingConfig) -> None:
         """Initialize encoder with configuration."""
-        pass
     
     @abstractmethod
     async def encode_frame(self, frame: AudioFrame) -> bytes:
         """Encode audio frame to bytes."""
-        pass
     
     @abstractmethod
     async def finalize(self) -> bytes:
         """Finalize encoding and return any remaining data."""
-        pass
     
     @abstractmethod
     def get_codec_info(self) -> Dict[str, Any]:
         """Get codec information and parameters."""
-        pass
 
 
 class PCMEncoder(AudioEncoder):
@@ -677,7 +671,6 @@ class StreamingClient:
     async def _close_connection(self) -> None:
         """Close streaming connection."""
         # Placeholder connection cleanup
-        pass
     
     async def _send_data_packet(self, data: bytes, timestamp: datetime) -> bool:
         """Send data packet to streaming server."""
@@ -878,7 +871,7 @@ class RecorderService(BaseAudioProcessor):
             
             # Write to file
             if self.file_writer and encoded_data:
-                write_start = time.time()
+                time.time()
                 write_time = await self.file_writer.write_data(encoded_data)
                 
                 if write_time:

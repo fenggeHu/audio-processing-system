@@ -7,8 +7,6 @@ with rollback capabilities.
 """
 
 import json
-import os
-import asyncio
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Callable, Union
@@ -18,7 +16,6 @@ from pydantic import BaseModel, ValidationError
 from .base import BaseConfigurable
 from .models import AudioConfig
 from .exceptions import ConfigError
-from .interfaces import IEventHandler
 
 logger = structlog.get_logger(__name__)
 
@@ -324,7 +321,7 @@ class ConfigManager(BaseConfigurable):
         if not self.validate_config(config_data):
             raise ConfigError("Loaded configuration is invalid")
         
-        old_config = self._config.copy()
+        self._config.copy()
         self._config = config_data
         self._config_version += 1
         
@@ -338,59 +335,3 @@ class ConfigManager(BaseConfigurable):
         config_data = self._load_from_file()
         await self.apply_config(config_data, "Hot reload from file", "system")
     
-    def export_config(self, export_path: Union[str, Path]) -> None:
-        """
-        Export current configuration to a file.
-        
-        Args:
-            export_path: Path to export the configuration
-        """
-        export_path = Path(export_path)
-        
-        try:
-            export_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(export_path, 'w', encoding='utf-8') as f:
-                json.dump(self._config, f, indent=2, ensure_ascii=False, default=str)
-            
-            logger.info("Configuration exported", 
-                       from_path=str(self.config_path),
-                       to_path=str(export_path))
-                       
-        except IOError as e:
-            raise ConfigError(f"Failed to export configuration: {e}")
-    
-    def get_config_schema(self) -> Dict[str, Any]:
-        """Get JSON schema for configuration validation."""
-        if hasattr(self.schema_model, 'model_json_schema'):
-            # Pydantic v2
-            return self.schema_model.model_json_schema()
-        elif hasattr(self.schema_model, 'schema'):
-            # Pydantic v1
-            return self.schema_model.schema()
-        else:
-            # Fallback basic schema
-            return {
-                "type": "object",
-                "properties": {},
-                "required": []
-            }
-    
-    def get_config_diff(self, version1: int, version2: int) -> Dict[str, Any]:
-        """
-        Get differences between two configuration versions.
-        
-        Args:
-            version1: First version number
-            version2: Second version number
-            
-        Returns:
-            Dictionary with differences
-        """
-        v1 = self.get_version(version1)
-        v2 = self.get_version(version2)
-        
-        if not v1 or not v2:
-            raise ConfigError("One or both versions not found")
-        
-        return self._get_config_changes(v1.config_data, v2.config_data)

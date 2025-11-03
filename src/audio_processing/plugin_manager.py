@@ -9,16 +9,15 @@ import asyncio
 import importlib
 import importlib.util
 import sys
-import os
-from typing import Dict, List, Optional, Any, Type, Set
+from typing import Dict, List, Optional, Any, Type
 from pathlib import Path
 import structlog
 
-from .interfaces import IPluginInterface, IAudioService
-from .models import AudioConfig, AudioFrame, ProcessingResult
-from .exceptions import PluginError, ServiceError
+from .interfaces import IPluginInterface
+from .models import AudioConfig
+from .exceptions import PluginError
 from .base import BaseAsyncService
-from .plugin_sandbox import PluginSandbox, PluginSecurityManager
+from .plugin_sandbox import PluginSecurityManager
 from .plugin_registry import PluginRegistry, PluginMetadata, PluginVersion
 
 logger = structlog.get_logger(__name__)
@@ -497,7 +496,6 @@ class PluginManager(BaseAsyncService):
     async def _watch_plugin_files(self) -> None:
         """Watch plugin files for changes and trigger hot reload."""
         try:
-            import watchdog
             from watchdog.observers import Observer
             from watchdog.events import FileSystemEventHandler
         except ImportError:

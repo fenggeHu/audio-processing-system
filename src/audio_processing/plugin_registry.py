@@ -6,10 +6,9 @@ and dependency management capabilities.
 """
 
 import json
-import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Set, Tuple
+from typing import Dict, List, Optional, Any, Tuple
 from dataclasses import dataclass, asdict
 from packaging import version
 import structlog
@@ -188,7 +187,6 @@ class PluginRegistry:
         """
         # Calculate file hash if path provided
         if plugin_file_path:
-            metadata.file_hash = self._calculate_file_hash(plugin_file_path)
             metadata.file_size = Path(plugin_file_path).stat().st_size
         
         # Add to registry
@@ -483,91 +481,9 @@ class PluginRegistry:
             'popular_keywords': sorted(keywords)[:10]  # Top 10
         }
     
-    def export_registry(self, export_path: str) -> None:
-        """
-        Export registry to file.
-        
-        Args:
-            export_path: Path to export file
-        """
-        export_data = {
-            'export_time': datetime.now().isoformat(),
-            'plugins': {}
-        }
-        
-        for name, versions in self._plugins.items():
-            export_data['plugins'][name] = {}
-            for version_str, metadata in versions.items():
-                export_data['plugins'][name][version_str] = self._metadata_to_dict(metadata)
-        
-        with open(export_path, 'w') as f:
-            json.dump(export_data, f, indent=2)
-        
-        logger.info("Registry exported", path=export_path)
+
     
-    def import_registry(self, import_path: str, merge: bool = True) -> None:
-        """
-        Import registry from file.
-        
-        Args:
-            import_path: Path to import file
-            merge: Whether to merge with existing registry
-        """
-        with open(import_path, 'r') as f:
-            import_data = json.load(f)
-        
-        if not merge:
-            self._plugins.clear()
-        
-        plugins_data = import_data.get('plugins', {})
-        for name, versions in plugins_data.items():
-            if name not in self._plugins:
-                self._plugins[name] = {}
-            
-            for version_str, metadata_dict in versions.items():
-                metadata = self._dict_to_metadata(metadata_dict)
-                self._plugins[name][version_str] = metadata
-        
-        self._save_registry()
-        logger.info("Registry imported", path=import_path, merge=merge)
-    
-    def get_load_order(self) -> List[str]:
-        """
-        Get the load order of all registered plugins based on dependencies.
-        
-        Returns:
-            List of plugin names in dependency order
-        """
-        load_order = []
-        visited = set()
-        visiting = set()
-        
-        def visit(plugin_name: str) -> None:
-            if plugin_name in visiting:
-                raise PluginError(f"Circular dependency detected: {plugin_name}")
-            
-            if plugin_name in visited:
-                return
-            
-            visiting.add(plugin_name)
-            
-            metadata = self.get_plugin(plugin_name)
-            if metadata:
-                # Visit dependencies first
-                for dep in metadata.dependencies:
-                    if not dep.optional and dep.name in self._plugins:
-                        visit(dep.name)
-            
-            visiting.remove(plugin_name)
-            visited.add(plugin_name)
-            load_order.append(plugin_name)
-        
-        # Visit all plugins
-        for plugin_name in self._plugins.keys():
-            if plugin_name not in visited:
-                visit(plugin_name)
-        
-        return load_order
+
 
     def _load_registry(self) -> None:
         """Load registry from file."""
@@ -642,10 +558,3 @@ class PluginRegistry:
         
         return PluginMetadata(**data)
     
-    def _calculate_file_hash(self, file_path: str) -> str:
-        """Calculate SHA-256 hash of file."""
-        hash_sha256 = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hash_sha256.update(chunk)
-        return hash_sha256.hexdigest()

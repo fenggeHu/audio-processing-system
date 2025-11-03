@@ -6,12 +6,11 @@ Terminal Device Adapter
 统一管理终端设备的硬件检测、配置优化和状态监控
 """
 
-import os
 import sys
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import argparse
 import logging
 from dataclasses import dataclass, asdict

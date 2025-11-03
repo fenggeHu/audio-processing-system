@@ -14,10 +14,9 @@ import tarfile
 import tempfile
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List
 import argparse
 import logging
-import subprocess
 
 logging.basicConfig(
     level=logging.INFO,

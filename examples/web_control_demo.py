@@ -23,7 +23,6 @@ from audio_processing.services.capture import CaptureService
 from audio_processing.services.ssl import SSLService
 from audio_processing.services.aec import AECService
 from audio_processing.services.agc import AGCService
-from audio_processing.container import DIContainer
 import structlog
 
 # Configure logging

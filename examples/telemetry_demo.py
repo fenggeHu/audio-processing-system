@@ -20,7 +20,6 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from audio_processing.services.telemetry import TelemetryService, QualityMetrics
-from audio_processing.models import AudioFrame, AudioConfig, AudioMetrics
 
 
 async def simulate_audio_service(service_name: str, telemetry: TelemetryService, duration: int = 30):

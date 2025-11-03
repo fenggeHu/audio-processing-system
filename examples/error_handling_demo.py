@@ -10,7 +10,7 @@ import time
 from typing import Dict, Any
 
 from src.audio_processing.error_recovery_integration import create_error_recovery_system
-from src.audio_processing.classroom_failsafe import FailsafeConfig, OperationMode
+from src.audio_processing.classroom_failsafe import FailsafeConfig
 from src.audio_processing.retry_mechanism import RetryConfig, RetryStrategy
 from src.audio_processing.models import AudioConfig
 from src.audio_processing.exceptions import ServiceError, ProcessingError, DeviceError

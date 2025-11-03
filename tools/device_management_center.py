@@ -242,13 +242,10 @@ class DeploymentTask:
         """创建配置模板"""
         template_file = self.templates_dir / f"{template_name}.json"
         
-        # 添加模板元数据
         template_with_meta = {
             "template_name": template_name,
             "version": "1.0.0",
             "created_at": datetime.now().isoformat(),
-            "description": template_data.get("description", ""),
-            "target_device_types": template_data.get("target_device_types", ["classroom_terminal"]),
             "config": template_data
         }
         
@@ -257,23 +254,3 @@ class DeploymentTask:
         
         logger.info(f"配置模板已创建: {template_file}")
         return str(template_file)
-    
-    def get_config_templates(self) -> List[Dict[str, Any]]:
-        """获取所有配置模板"""
-        templates = []
-        
-        for template_file in self.templates_dir.glob("*.json"):
-            try:
-                with open(template_file, 'r', encoding='utf-8') as f:
-                    template_data = json.load(f)
-                    templates.append({
-                        "file": template_file.name,
-                        "name": template_data.get("template_name", template_file.stem),
-                        "version": template_data.get("version", "unknown"),
-                        "description": template_data.get("description", ""),
-                        "target_types": template_data.get("target_device_types", [])
-                    })
-            except Exception as e:
-                logger.warning(f"读取模板文件失败 {template_file}: {e}")
-        
-        return templates

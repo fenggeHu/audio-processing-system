@@ -8,21 +8,16 @@ dual-path routing (PA/recording), and real-time format conversion.
 import asyncio
 import time
 import math
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple, Union, AsyncGenerator
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional, Tuple
 from enum import Enum
 import numpy as np
 import structlog
 from scipy import signal
-from collections import deque
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
-from ..exceptions import ProcessingError, ServiceError
-from ..communication.audio_pipeline import AudioPipeline, PipelineNode
+from ..models import AudioFrame, AudioConfig
 
 logger = structlog.get_logger(__name__)
 
@@ -889,7 +884,6 @@ class ClassroomMixerService(BaseAudioProcessor):
         # In production, would send to:
         # - Audio interface for PA system
         # - File writer or streaming encoder for recording
-        pass
     
     def _update_mixer_metrics(self, frame: AudioFrame, 
                             routing_results: Dict[OutputType, bool],

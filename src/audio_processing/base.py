@@ -8,11 +8,11 @@ async services.
 
 import asyncio
 import time
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Dict, Any, Optional, List
 import structlog
 
-from .interfaces import IAudioService, IMetricsCollector, IConfigurable, IEventHandler
+from .interfaces import IAudioService, IMetricsCollector, IConfigurable
 from .models import AudioFrame, ProcessingResult, AudioConfig, AudioMetrics
 from .exceptions import ServiceError, ConfigError, ProcessingError
 
@@ -109,14 +109,8 @@ class BaseConfigurable(IConfigurable):
         if not self._config_history:
             raise ConfigError("No configuration history available")
         
-        if steps > len(self._config_history):
-            steps = len(self._config_history)
-        
         # Get target configuration
-        target_config = self._config_history[-steps]
-        
-        # Remove rolled-back configs from history
-        self._config_history = self._config_history[:-steps]
+        target_config = self._config_history[-min(steps, len(self._config_history))]
         
         # Apply target configuration
         await self.apply_config(target_config)
@@ -130,7 +124,6 @@ class BaseConfigurable(IConfigurable):
         
         Subclasses can override to handle configuration changes.
         """
-        pass
     
     def _get_config_changes(self, old_config: Dict[str, Any], 
                           new_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -257,12 +250,10 @@ class BaseAsyncService(BaseConfigurable):
     @abstractmethod
     async def _initialize(self) -> None:
         """Initialize service resources. Subclasses must implement."""
-        pass
     
     @abstractmethod
     async def _cleanup(self) -> None:
         """Cleanup service resources. Subclasses must implement."""
-        pass
     
     async def _start_background_tasks(self) -> None:
         """
@@ -271,7 +262,6 @@ class BaseAsyncService(BaseConfigurable):
         Base implementation does nothing.
         Subclasses can override to start specific tasks.
         """
-        pass
 
 
 class BaseAudioProcessor(BaseAsyncService, IAudioService):
@@ -397,7 +387,6 @@ class BaseAudioProcessor(BaseAsyncService, IAudioService):
         Returns:
             Processed audio frame
         """
-        pass
     
     def _validate_input_frame(self, frame: AudioFrame) -> None:
         """

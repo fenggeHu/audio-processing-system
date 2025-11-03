@@ -11,24 +11,17 @@
 deploy/
 ├── README.md                    # 本文件
 ├── install.sh                   # 自动安装脚本
-├── deploy.py                    # Python部署脚本
 ├── docker-compose.yml           # Docker容器编排
-├── USER_MANUAL.md              # 用户操作手册
-├── MAINTENANCE_GUIDE.md        # 系统维护指南
-├── config/                     # 配置文件模板
-│   ├── production.json         # 生产环境配置
-│   └── development.json        # 开发环境配置
+├── maintenance_guide.md         # 系统维护和用户指南
 ├── docker/                     # Docker相关文件
-│   ├── Dockerfile              # 主应用镜像
-│   └── Dockerfile.web          # Web界面镜像
+│   └── Dockerfile              # 应用镜像
 ├── nginx/                      # Nginx配置
 │   ├── nginx.conf              # 主配置文件
 │   └── conf.d/                 # 站点配置
 ├── monitoring/                 # 监控配置
 │   ├── prometheus.yml          # Prometheus配置
 │   └── alert_rules.yml         # 告警规则
-└── scripts/                    # 部署脚本
-    └── auto_deploy.sh          # 自动化部署流程
+
 ```
 
 ## 快速开始
@@ -58,16 +51,7 @@ docker-compose -f deploy/docker-compose.yml up -d
 docker-compose -f deploy/docker-compose.yml ps
 ```
 
-### 方式3: 自动化部署流程
 
-```bash
-# 设置部署环境
-export DEPLOY_ENV=production
-
-# 运行自动化部署
-chmod +x deploy/scripts/auto_deploy.sh
-deploy/scripts/auto_deploy.sh
-```
 
 ## 部署环境
 
@@ -108,10 +92,10 @@ deploy/scripts/auto_deploy.sh
 
 ### 环境配置文件
 
-每个环境都有对应的配置文件：
+系统使用统一的配置文件：
 
-- `config/production.json`: 生产环境配置
-- `config/development.json`: 开发环境配置
+- `config/audio_system.json`: 主配置文件
+- `config/classroom_environments.yaml`: 教室环境配置
 
 ### 主要配置项
 
@@ -207,7 +191,7 @@ iotop
    journalctl -u audio-processing -f
    
    # 检查配置
-   python3 -c "import json; json.load(open('/opt/audio-processing-system/config/production.json'))"
+   python3 -c "import json; json.load(open('/opt/audio-processing-system/config/audio_system.json'))"
    ```
 
 2. **音频设备问题**
@@ -231,7 +215,7 @@ iotop
 
 ### 获取支持
 
-- **技术文档**: 查看 `USER_MANUAL.md` 和 `MAINTENANCE_GUIDE.md`
+- **技术文档**: 查看 `maintenance_guide.md`
 - **日志收集**: 运行 `collect_logs.sh` 脚本
 - **问题报告**: 提交到项目Issue页面
 

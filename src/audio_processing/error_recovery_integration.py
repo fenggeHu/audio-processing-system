@@ -5,13 +5,11 @@ This module provides a unified interface for integrating error handling,
 fault tolerance, and recovery mechanisms into the audio processing system.
 """
 
-import asyncio
 from typing import Dict, Any, Optional, List
 import structlog
 
-from .fault_tolerance import FaultToleranceCoordinator, SystemHealthLevel
-from .error_handler import ErrorHandler, ErrorSeverity, RecoveryAction
-from .classroom_failsafe import ClassroomFailsafeManager, OperationMode, FailsafeConfig
+from .fault_tolerance import FaultToleranceCoordinator
+from .classroom_failsafe import FailsafeConfig
 from .retry_mechanism import AutoRecoveryManager, RetryConfig, RetryStrategy
 from .interfaces import IEventHandler
 from .models import AudioConfig

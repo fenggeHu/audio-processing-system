@@ -5,16 +5,15 @@ This service manages plugin execution within the audio processing chain,
 providing seamless integration with the existing service architecture.
 """
 
-import asyncio
 from typing import Dict, List, Optional, Any
 import structlog
 
-from ..interfaces import IAudioService, IPluginInterface
-from ..models import AudioFrame, ProcessingResult, AudioConfig, AudioMetrics
+from ..interfaces import IPluginInterface
+from ..models import AudioFrame, AudioConfig, AudioMetrics
 from ..base import BaseAudioProcessor
 from ..plugin_manager import PluginManager
 from ..plugin_sandbox import PluginSandbox, PluginSecurityManager
-from ..exceptions import PluginError, ProcessingError
+from ..exceptions import PluginError
 
 logger = structlog.get_logger(__name__)
 

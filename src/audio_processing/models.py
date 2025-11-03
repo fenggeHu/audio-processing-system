@@ -8,7 +8,7 @@ ProcessingResult, and AudioMetrics.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 import numpy as np
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 

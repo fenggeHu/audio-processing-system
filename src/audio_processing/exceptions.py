@@ -27,34 +27,27 @@ class AudioProcessingError(Exception):
 
 class ServiceError(AudioProcessingError):
     """Exception raised when service operations fail."""
-    pass
 
 
 class ConfigError(AudioProcessingError):
     """Exception raised when configuration is invalid or cannot be applied."""
-    pass
 
 
 class ProcessingError(AudioProcessingError):
     """Exception raised during audio frame processing."""
-    pass
 
 
 class DeviceError(AudioProcessingError):
     """Exception raised when audio device operations fail."""
-    pass
 
 
 class ProcessingTimeoutError(AudioProcessingError):
     """Exception raised when processing takes too long."""
-    pass
 
 
 class DependencyError(AudioProcessingError):
     """Exception raised when service dependencies are not met."""
-    pass
 
 
 class PluginError(AudioProcessingError):
     """Exception raised during plugin operations."""
-    pass

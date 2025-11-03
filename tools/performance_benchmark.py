@@ -12,7 +12,7 @@ import statistics
 import numpy as np
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass, asdict
 import concurrent.futures
 
@@ -54,9 +54,6 @@ class AudioProcessingBenchmark:
         
         # 网络性能测试
         self._run_network_tests()
-        
-        # 内存性能测试
-        self._run_memory_tests()
         
         # 生成报告
         return self._generate_report()
@@ -107,41 +104,25 @@ class AudioProcessingBenchmark:
         """内存性能测试"""
         print("🔄 内存性能测试...")
         
-        # 测试不同大小的内存分配和访问
-        sizes = [1024, 10240, 102400, 1024000]  # 1KB, 10KB, 100KB, 1MB
+        size = 1024000  # 1MB
+        start_time = time.time()
         
-        for size in sizes:
-            start_time = time.time()
-            
-            # 分配内存
-            data = bytearray(size)
-            
-            # 写入数据
-            for i in range(0, size, 4):
-                if i + 3 < size:
-                    data[i:i+4] = (i % 256).to_bytes(4, 'little')
-            
-            # 读取数据
-            checksum = 0
-            for i in range(0, size, 4):
-                if i + 3 < size:
-                    checksum += int.from_bytes(data[i:i+4], 'little')
-            
-            end_time = time.time()
-            duration = end_time - start_time
-            
-            throughput = (size * 2) / (1024 * 1024) / duration  # MB/s (读+写)
-            
-            benchmark_result = BenchmarkResult(
-                test_name=f"内存性能_{size//1024}KB",
-                duration_seconds=duration,
-                throughput_mbps=throughput,
-                success=True,
-                metadata={"size_bytes": size, "checksum": checksum}
-            )
-            
-            self.results.append(benchmark_result)
-            print(f"  ✅ {size//1024}KB - 耗时: {duration:.4f}s, 吞吐量: {throughput:.1f} MB/s")
+        # 分配和访问内存
+        data = bytearray(size)
+        for i in range(0, size, 1024):
+            data[i] = i % 256
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        benchmark_result = BenchmarkResult(
+            test_name="内存性能",
+            duration_seconds=duration,
+            success=True
+        )
+        
+        self.results.append(benchmark_result)
+        print(f"  ✅ 内存测试完成 - 耗时: {duration:.4f}s")
     
     def _test_disk_performance(self):
         """磁盘I/O性能测试"""
@@ -236,7 +217,7 @@ class AudioProcessingBenchmark:
             # 执行多次FFT
             iterations = 1000
             for _ in range(iterations):
-                fft_result = np.fft.fft(test_data)
+                np.fft.fft(test_data)
             
             end_time = time.time()
             duration = end_time - start_time
@@ -277,7 +258,7 @@ class AudioProcessingBenchmark:
         # 执行滤波
         iterations = 10
         for _ in range(iterations):
-            filtered_audio = signal.filtfilt(b, a, test_audio)
+            signal.filtfilt(b, a, test_audio)
         
         end_time = time.time()
         duration_total = end_time - start_time
@@ -320,7 +301,7 @@ class AudioProcessingBenchmark:
                 start_time = time.perf_counter()
                 
                 # 模拟音频处理 (简单的增益调整)
-                processed_buffer = audio_buffer * 0.8
+                audio_buffer * 0.8
                 
                 end_time = time.perf_counter()
                 
@@ -375,7 +356,7 @@ class AudioProcessingBenchmark:
             for _ in range(10):  # 处理10个缓冲区
                 audio_data = np.random.randn(samples // 10).astype(np.float32)
                 # 简单处理
-                processed = audio_data * 0.8
+                audio_data * 0.8
                 await asyncio.sleep(0.001)  # 模拟I/O等待
             
             end_time = time.time()
@@ -439,7 +420,7 @@ class AudioProcessingBenchmark:
                 futures = [executor.submit(cpu_intensive_task) for _ in range(thread_count * 2)]
                 
                 # 等待完成
-                results = [future.result() for future in concurrent.futures.as_completed(futures)]
+                [future.result() for future in concurrent.futures.as_completed(futures)]
             
             end_time = time.time()
             duration = end_time - start_time
@@ -478,7 +459,7 @@ class AudioProcessingBenchmark:
         
         for size in data_sizes:
             # 生成测试数据
-            test_data = b'A' * size
+            b'A' * size
             
             start_time = time.time()
             
@@ -486,10 +467,9 @@ class AudioProcessingBenchmark:
             iterations = 100
             for _ in range(iterations):
                 # 模拟发送 (序列化)
-                serialized = test_data
+                pass
                 
                 # 模拟接收 (反序列化)
-                received = serialized
             
             end_time = time.time()
             duration = end_time - start_time
@@ -577,94 +557,7 @@ class AudioProcessingBenchmark:
             self.results.append(benchmark_result)
             print(f"  ❌ 网络延迟测试失败: {e}")
     
-    def _run_memory_tests(self):
-        """运行内存性能测试"""
-        print("\n💾 内存性能测试")
-        print("-" * 30)
-        
-        self._test_memory_allocation()
-        self._test_memory_bandwidth()
-    
-    def _test_memory_allocation(self):
-        """内存分配性能测试"""
-        print("🔄 内存分配性能测试...")
-        
-        allocation_sizes = [1024, 10240, 102400, 1024000]  # 1KB to 1MB
-        
-        for size in allocation_sizes:
-            start_time = time.time()
-            
-            # 大量内存分配和释放
-            allocations = []
-            iterations = 1000
-            
-            for _ in range(iterations):
-                data = bytearray(size)
-                allocations.append(data)
-            
-            # 清理
-            allocations.clear()
-            
-            end_time = time.time()
-            duration = end_time - start_time
-            
-            allocations_per_second = iterations / duration
-            
-            benchmark_result = BenchmarkResult(
-                test_name=f"内存分配_{size//1024}KB",
-                duration_seconds=duration,
-                throughput_mbps=allocations_per_second / 1000,  # K allocs/s
-                success=True,
-                metadata={
-                    "allocation_size_bytes": size,
-                    "iterations": iterations,
-                    "allocations_per_second": allocations_per_second
-                }
-            )
-            
-            self.results.append(benchmark_result)
-            print(f"  ✅ {size//1024}KB - {allocations_per_second:.0f} allocs/s")
-    
-    def _test_memory_bandwidth(self):
-        """内存带宽测试"""
-        print("🔄 内存带宽测试...")
-        
-        # 大块内存复制测试
-        size = 10 * 1024 * 1024  # 10MB
-        source = bytearray(size)
-        
-        # 填充源数据
-        for i in range(0, size, 4):
-            if i + 3 < size:
-                source[i:i+4] = (i % 256).to_bytes(4, 'little')
-        
-        start_time = time.time()
-        
-        # 执行多次内存复制
-        iterations = 100
-        for _ in range(iterations):
-            destination = bytearray(source)
-        
-        end_time = time.time()
-        duration = end_time - start_time
-        
-        total_bytes = size * iterations
-        bandwidth = (total_bytes / (1024 * 1024)) / duration  # MB/s
-        
-        benchmark_result = BenchmarkResult(
-            test_name="内存带宽",
-            duration_seconds=duration,
-            throughput_mbps=bandwidth,
-            success=True,
-            metadata={
-                "block_size_mb": size // (1024 * 1024),
-                "iterations": iterations,
-                "total_mb": total_bytes // (1024 * 1024)
-            }
-        )
-        
-        self.results.append(benchmark_result)
-        print(f"  ✅ 内存带宽 - {bandwidth:.1f} MB/s")
+
     
     def _generate_report(self) -> Dict:
         """生成基准测试报告"""

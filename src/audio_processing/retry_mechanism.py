@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 import structlog
 
-from .exceptions import AudioProcessingError, ServiceError
+from .exceptions import ServiceError
 
 logger = structlog.get_logger(__name__)
 
@@ -203,21 +203,7 @@ class RetryMechanism:
             "total_operations": len(self._retry_counts)
         }
     
-    def reset_statistics(self, operation_id: Optional[str] = None) -> None:
-        """
-        Reset retry statistics.
-        
-        Args:
-            operation_id: Specific operation to reset, or None for all
-        """
-        if operation_id:
-            self._retry_counts.pop(operation_id, None)
-            self._last_attempt_times.pop(operation_id, None)
-        else:
-            self._retry_counts.clear()
-            self._last_attempt_times.clear()
-        
-        logger.debug("Retry statistics reset", operation_id=operation_id)
+
     
     def _should_retry(self, exception: Exception) -> bool:
         """Check if exception should trigger a retry."""

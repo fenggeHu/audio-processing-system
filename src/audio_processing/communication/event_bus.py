@@ -10,7 +10,7 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Any, Callable, Optional, Set, Union
+from typing import Dict, List, Any, Callable, Optional, Set
 from enum import Enum
 import structlog
 import weakref
@@ -86,7 +86,6 @@ class EventHandler(ABC):
         Args:
             event: Event to handle
         """
-        pass
     
     @abstractmethod
     def get_supported_events(self) -> Set[str]:
@@ -96,7 +95,6 @@ class EventHandler(ABC):
         Returns:
             Set of supported event type strings
         """
-        pass
     
     def get_handler_priority(self) -> int:
         """

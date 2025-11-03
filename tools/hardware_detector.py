@@ -6,7 +6,6 @@ Hardware Detection and Configuration Tool
 自动检测终端设备硬件配置并生成优化的系统配置
 """
 
-import os
 import sys
 import json
 import subprocess
@@ -14,7 +13,7 @@ import platform
 import psutil
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Any
 import argparse
 import logging
 from dataclasses import dataclass, asdict
@@ -97,7 +96,7 @@ class HardwareDetector:
             hostname = platform.node()
             
             # 获取操作系统信息
-            os_info = platform.platform()
+            platform.platform()
             os_name = platform.system()
             os_version = platform.release()
             
@@ -386,12 +385,10 @@ class HardwareDetector:
     def _detect_macos_audio_devices(self):
         """检测macOS音频设备"""
         # macOS音频设备检测实现
-        pass
     
     def _detect_windows_audio_devices(self):
         """检测Windows音频设备"""
         # Windows音频设备检测实现
-        pass
     
     def classify_performance(self) -> str:
         """分类设备性能等级"""

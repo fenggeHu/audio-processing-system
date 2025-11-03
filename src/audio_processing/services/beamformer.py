@@ -5,24 +5,20 @@ This module implements the BeamformerService with Delay-and-Sum (DAS) and
 MVDR algorithms for classroom audio processing with SSL-based steering.
 """
 
-import asyncio
 import time
-import math
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple, Union
-from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
 from enum import Enum
 import numpy as np
 import structlog
-from scipy import signal
-from scipy.linalg import inv, pinv
+from scipy.linalg import inv
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
+from ..models import AudioFrame, AudioConfig
 from ..exceptions import ProcessingError, ServiceError
-from .ssl import MicrophonePosition, DirectionEstimate, ClassroomArea
+from .ssl import MicrophonePosition
 
 logger = structlog.get_logger(__name__)
 

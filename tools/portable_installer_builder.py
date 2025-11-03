@@ -6,17 +6,13 @@ Portable Installer Builder
 创建自解压的便携式安装包，支持一键安装和批量部署
 """
 
-import os
 import sys
 import base64
 import gzip
-import tempfile
-import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List
 import argparse
 import logging
-import json
 import hashlib
 
 logging.basicConfig(

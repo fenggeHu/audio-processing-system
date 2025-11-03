@@ -5,23 +5,17 @@ This module implements the DenoiseService with RNNoise integration,
 adjustable noise reduction strength, and speech quality protection mechanisms.
 """
 
-import asyncio
-import time
-import math
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple, Union
-from datetime import datetime, timedelta
+from dataclasses import dataclass
+from typing import Dict, Any, Optional, Tuple
 from enum import Enum
 import numpy as np
 import structlog
-from scipy import signal
 from collections import deque
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
-from ..exceptions import ProcessingError, ServiceError
+from ..models import AudioFrame, AudioConfig
+from ..exceptions import ProcessingError
 
 logger = structlog.get_logger(__name__)
 

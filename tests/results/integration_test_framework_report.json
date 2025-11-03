@@ -1,5 +1,0 @@
-{
-  "status": "FAILED",
-  "phase": "environment_setup",
-  "error": "Failed to setup integration test environment"
-}

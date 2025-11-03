@@ -6,20 +6,17 @@ Remote Diagnostics and Log Collection Tool
 提供远程设备诊断、日志收集和故障分析功能
 """
 
-import os
 import sys
 import json
 import time
-import subprocess
 import tarfile
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import argparse
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from dataclasses import dataclass, asdict
 import paramiko
-import socket
 
 logging.basicConfig(
     level=logging.INFO,

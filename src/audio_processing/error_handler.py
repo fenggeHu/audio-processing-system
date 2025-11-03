@@ -7,15 +7,15 @@ and fault tolerance mechanisms for the audio processing system.
 
 import asyncio
 import time
-from typing import Dict, Any, Optional, Callable, List, Tuple
+from typing import Dict, Any, Optional, Callable, List
 from enum import Enum
 from dataclasses import dataclass, field
 import structlog
 
 from .interfaces import IEventHandler
 from .exceptions import (
-    AudioProcessingError, ServiceError, ConfigError, ProcessingError,
-    DeviceError, ProcessingTimeoutError, DependencyError, PluginError
+    ServiceError, ConfigError, ProcessingError, DeviceError,
+    ProcessingTimeoutError, DependencyError, PluginError
 )
 
 logger = structlog.get_logger(__name__)
@@ -234,36 +234,7 @@ class ErrorHandler(IEventHandler):
             "recovery_strategies": len(self._recovery_strategies)
         }
     
-    def reset_error_statistics(self, service_name: Optional[str] = None) -> None:
-        """
-        Reset error statistics.
-        
-        Args:
-            service_name: Service to reset, or None for all services
-        """
-        if service_name:
-            # Reset for specific service
-            keys_to_remove = [
-                key for key in self._error_counts.keys()
-                if key.startswith(f"{service_name}:")
-            ]
-            for key in keys_to_remove:
-                del self._error_counts[key]
-            
-            # Remove from history
-            self._error_history = [
-                ctx for ctx in self._error_history
-                if ctx.service_name != service_name
-            ]
-            
-            logger.info("Error statistics reset", service=service_name)
-        else:
-            # Reset all statistics
-            self._error_counts.clear()
-            self._error_history.clear()
-            self._service_health.clear()
-            
-            logger.info("All error statistics reset")
+
     
     async def handle_event(self, event_type: str, event_data: Dict[str, Any]) -> None:
         """Handle system events (implements IEventHandler)."""

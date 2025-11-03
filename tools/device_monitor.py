@@ -6,15 +6,13 @@ Device Status Monitoring and Remote Management Tool
 提供实时设备状态监控、远程管理和故障诊断功能
 """
 
-import os
 import sys
 import json
 import time
 import socket
-import threading
 import subprocess
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable
+from typing import Dict, List, Optional, Any
 import argparse
 import logging
 from dataclasses import dataclass, asdict
@@ -256,23 +254,9 @@ class DeviceMonitor:
         if notifications.get("log", {}).get("enabled", True):
             logger.error(f"ALERT: {alert.message}")
         
-        # 邮件通知
-        if notifications.get("email", {}).get("enabled", False):
-            self._send_email_notification(alert)
-        
-        # Webhook通知
-        if notifications.get("webhook", {}).get("enabled", False):
-            self._send_webhook_notification(alert)
+
     
-    def _send_email_notification(self, alert: SystemAlert):
-        """发送邮件通知"""
-        # 邮件通知实现
-        pass
-    
-    def _send_webhook_notification(self, alert: SystemAlert):
-        """发送Webhook通知"""
-        # Webhook通知实现
-        pass
+
     
     def _attempt_auto_recovery(self, alert: SystemAlert):
         """尝试自动恢复"""

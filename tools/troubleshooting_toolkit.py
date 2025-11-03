@@ -9,26 +9,14 @@ import sys
 import time
 import json
 import psutil
-import asyncio
 import argparse
 import subprocess
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 
-@dataclass
-class SystemMetrics:
-    """系统指标数据类"""
-    timestamp: str
-    cpu_percent: float
-    memory_percent: float
-    memory_used_mb: float
-    disk_usage_percent: float
-    network_bytes_sent: int
-    network_bytes_recv: int
-    audio_latency_ms: Optional[float] = None
-    buffer_usage_percent: Optional[float] = None
+
 
 class TroubleshootingToolkit:
     """故障排除工具包主类"""
@@ -207,21 +195,11 @@ class TroubleshootingToolkit:
     def _test_network_bandwidth(self) -> Dict:
         """测试网络带宽"""
         try:
-            # 简单的网络测试
-            start_time = time.time()
-            result = subprocess.run(['ping', '-c', '4', '8.8.8.8'], 
-                                  capture_output=True, text=True, timeout=10)
-            end_time = time.time()
-            
-            return {
-                'ping_successful': result.returncode == 0,
-                'ping_output': result.stdout if result.returncode == 0 else result.stderr,
-                'test_duration': end_time - start_time
-            }
-        except subprocess.TimeoutExpired:
-            return {'ping_successful': False, 'error': 'Ping timeout'}
-        except Exception as e:
-            return {'ping_successful': False, 'error': str(e)}
+            result = subprocess.run(['ping', '-c', '2', '8.8.8.8'], 
+                                  capture_output=True, text=True, timeout=5)
+            return {'ping_successful': result.returncode == 0}
+        except Exception:
+            return {'ping_successful': False}
     
     def _get_performance_metrics(self) -> Dict:
         """获取性能指标"""
@@ -291,28 +269,11 @@ class TroubleshootingToolkit:
         
         try:
             with open(log_file, 'r') as f:
-                lines = f.readlines()[-500:]  # 分析最近500行
+                lines = f.readlines()[-100:]  # 分析最近100行
             
-            high_cpu_count = 0
-            high_memory_count = 0
-            high_latency_count = 0
-            
-            for line in lines:
-                if 'CPU:' in line and 'CPU: 8' in line or 'CPU: 9' in line:  # >80%
-                    high_cpu_count += 1
-                if 'Memory:' in line and ('Memory: 8' in line or 'Memory: 9' in line):  # >80%
-                    high_memory_count += 1
-                if 'Latency:' in line and ('ms' in line):
-                    # 简单检查延迟是否过高
-                    if any(x in line for x in ['50ms', '60ms', '70ms', '80ms', '90ms']):
-                        high_latency_count += 1
-            
-            if high_cpu_count > 10:
-                issues.append(f"检测到{high_cpu_count}次高CPU使用率")
-            if high_memory_count > 10:
-                issues.append(f"检测到{high_memory_count}次高内存使用率")
-            if high_latency_count > 5:
-                issues.append(f"检测到{high_latency_count}次高延迟")
+            error_lines = [line for line in lines if 'ERROR' in line or 'CRITICAL' in line]
+            if len(error_lines) > 5:
+                issues.append(f"检测到{len(error_lines)}个严重错误")
         
         except Exception as e:
             issues.append(f"性能日志分析错误: {str(e)}")

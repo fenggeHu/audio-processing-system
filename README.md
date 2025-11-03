@@ -81,18 +81,36 @@ src/audio_processing/
 ├── base.py                  # Base classes
 ├── container.py             # Dependency injection container
 ├── service_manager.py       # Service lifecycle management
+├── config_manager.py        # Configuration management
+├── plugin_manager.py        # Plugin system management
+├── plugin_registry.py       # Plugin registry
+├── plugin_sandbox.py        # Plugin sandboxing
 ├── exceptions.py            # Custom exceptions
+├── error_handler.py         # Error handling utilities
+├── fault_tolerance.py       # Fault tolerance mechanisms
+├── retry_mechanism.py       # Retry logic
+├── quality_assessment.py    # Audio quality assessment
+├── classroom_failsafe.py    # Classroom-specific failsafe
 ├── services/                # Audio processing services
 │   ├── capture.py          # Audio capture service
 │   ├── ssl.py              # Sound source localization
 │   ├── beamformer.py       # Beamforming service
 │   ├── aec.py              # Echo cancellation
 │   ├── denoise.py          # Noise reduction
-│   └── agc.py              # Automatic gain control
+│   ├── agc.py              # Automatic gain control
+│   ├── mixer.py            # Audio mixing service
+│   ├── recorder.py         # Audio recording service
+│   ├── control.py          # Web control service
+│   ├── telemetry.py        # Telemetry and monitoring
+│   ├── plugin_service.py   # Plugin processing service
+│   └── classroom_calibration.py # Classroom calibration
+├── communication/           # Communication framework
+│   ├── event_bus.py        # Event bus system
+│   ├── message_router.py   # Message routing
+│   ├── audio_pipeline.py   # Audio processing pipeline
+│   └── shared_memory.py    # Shared memory management
 └── utils/                   # Utility functions
-    ├── audio.py            # Audio processing utilities
-    ├── math.py             # Mathematical functions
-    └── config.py           # Configuration helpers
+    └── config_utils.py     # Configuration utilities
 ```
 
 ### Running Tests
@@ -113,7 +131,7 @@ pytest --cov=src/audio_processing
 pytest tests/unit/test_models.py
 
 # Run integration tests
-python run_integration_tests.py
+pytest tests/integration/
 ```
 
 ### Code Quality

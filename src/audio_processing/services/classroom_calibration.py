@@ -12,14 +12,13 @@ import math
 import numpy as np
 from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 import structlog
 
-from ..interfaces import IAudioService, IMetricsCollector
-from ..base import BaseAudioProcessor, BaseAsyncService
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
-from ..exceptions import ProcessingError, ServiceError, ConfigError
+from ..base import BaseAsyncService
+from ..models import AudioFrame
+from ..exceptions import ServiceError
 
 logger = structlog.get_logger(__name__)
 
@@ -488,7 +487,7 @@ class TestSignalGenerator:
         
         # Logarithmic frequency sweep
         k = (f_end / f_start) ** (1 / duration)
-        instantaneous_freq = f_start * (k ** t)
+        f_start * (k ** t)
         
         # Generate sweep signal
         phase = 2 * np.pi * f_start * (k ** t - 1) / np.log(k)
@@ -836,11 +835,9 @@ class ScenarioAudioAnalyzer:
     async def initialize(self) -> None:
         """Initialize audio analyzer."""
         # Initialize VAD, speaker detection, etc.
-        pass
     
     async def cleanup(self) -> None:
         """Cleanup audio analyzer."""
-        pass
     
     async def analyze_frame(self, frame: AudioFrame) -> Dict[str, Any]:
         """
@@ -867,7 +864,7 @@ class ScenarioAudioAnalyzer:
     def _estimate_speaker_count(self, frame: AudioFrame) -> int:
         """Estimate number of active speakers."""
         # Simplified implementation - would use more sophisticated methods
-        ssl_direction = frame.metadata.get('ssl_direction', 0)
+        frame.metadata.get('ssl_direction', 0)
         speech_activity = self._calculate_speech_activity(frame)
         
         if speech_activity > 0.7:

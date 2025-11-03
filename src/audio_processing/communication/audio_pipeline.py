@@ -9,12 +9,12 @@ import asyncio
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, AsyncGenerator, Callable, Union
+from typing import Dict, List, Any, Optional
 from enum import Enum
 import structlog
 import numpy as np
 
-from ..models import AudioFrame, ProcessingResult
+from ..models import AudioFrame
 
 logger = structlog.get_logger(__name__)
 
@@ -95,7 +95,7 @@ class BackpressureController:
             return False
         
         queue_level = queue_size / max_queue_size
-        current_time = time.time()
+        time.time()
         
         # Update processing time history
         if processing_time_ms is not None:
@@ -205,7 +205,6 @@ class PipelineNode(ABC):
         Returns:
             Processed audio frame or None to drop frame
         """
-        pass
     
     async def start(self) -> None:
         """Start the pipeline node processing."""

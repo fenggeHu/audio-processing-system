@@ -6,22 +6,19 @@ This module implements the SSLService using SRP-PHAT algorithm for
 classroom audio processing with direction tracking and area recognition.
 """
 
-import asyncio
 import time
 import math
-from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Tuple, Set
-from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional, Tuple
+from datetime import datetime
 from enum import Enum
 import numpy as np
 import structlog
-from scipy import signal
 from scipy.fft import fft, ifft
 
-from ..interfaces import IAudioService, IMetricsCollector
+from ..interfaces import IMetricsCollector
 from ..base import BaseAudioProcessor
-from ..models import AudioFrame, AudioConfig, ProcessingResult, AudioMetrics
+from ..models import AudioFrame, AudioConfig
 from ..exceptions import ProcessingError, ServiceError
 
 logger = structlog.get_logger(__name__)

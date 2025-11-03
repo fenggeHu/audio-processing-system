@@ -6,13 +6,9 @@ Batch Deployment Manager
 管理多设备的批量配置部署和更新
 """
 
-import os
 import sys
 import json
 import time
-import asyncio
-import threading
-import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import argparse
@@ -21,7 +17,6 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 import concurrent.futures
 import paramiko
-import socket
 
 logging.basicConfig(
     level=logging.INFO,

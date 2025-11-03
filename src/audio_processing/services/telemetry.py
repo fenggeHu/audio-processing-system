@@ -7,7 +7,6 @@ for the audio processing system.
 """
 
 import asyncio
-import time
 import psutil
 import threading
 from collections import defaultdict, deque
@@ -16,13 +15,10 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List, Callable, Deque
 from enum import Enum
 import structlog
-import json
-import numpy as np
 
-from ..interfaces import IAudioService, IMetricsCollector, IEventHandler
+from ..interfaces import IMetricsCollector, IEventHandler
 from ..base import BaseAsyncService
-from ..models import AudioFrame, AudioConfig, AudioMetrics, ProcessingResult
-from ..exceptions import ServiceError, ProcessingError
+from ..models import AudioConfig, AudioMetrics
 
 
 class LogLevel(Enum):

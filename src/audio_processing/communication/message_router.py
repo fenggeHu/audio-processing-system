@@ -9,7 +9,7 @@ import asyncio
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional, Set, Callable, Union
+from typing import Dict, List, Any, Optional, Set, Callable
 from enum import Enum
 import structlog
 import weakref
@@ -100,12 +100,10 @@ class MessageHandler(ABC):
         Returns:
             Optional response message
         """
-        pass
     
     @abstractmethod
     def get_supported_message_types(self) -> Set[MessageType]:
         """Get set of message types this handler supports."""
-        pass
     
     def get_handler_id(self) -> str:
         """Get unique identifier for this handler."""
