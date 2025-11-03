@@ -97,15 +97,23 @@ src/audio_processing/
 
 ### Running Tests
 
+The project uses a consolidated test structure under the `tests/` directory. See `tests/README.md` for detailed information about the test organization.
+
 ```bash
 # Run all tests
 pytest
+
+# Run unit tests only
+pytest tests/unit/
 
 # Run with coverage
 pytest --cov=src/audio_processing
 
 # Run specific test file
-pytest tests/test_models.py
+pytest tests/unit/test_models.py
+
+# Run integration tests
+python run_integration_tests.py
 ```
 
 ### Code Quality

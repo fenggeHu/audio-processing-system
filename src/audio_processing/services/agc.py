@@ -697,7 +697,7 @@ class GainController:
         recent_levels = list(self.level_history)[-20:]
         level_variance = np.var(recent_levels)
         
-        return level_variance > self.pumping_threshold
+        return bool(level_variance > self.pumping_threshold)
     
     def reset(self) -> None:
         """Reset gain controller state."""
@@ -962,8 +962,11 @@ class AGCService(BaseAudioProcessor):
         self.howling_protection.reset()
         self.gain_controller.reset()
         
-        # Reset metrics
+        # Reset metrics and counters
         self.agc_metrics = AGCMetrics()
+        self.frames_processed = 0
+        self.teacher_frames = 0
+        self.student_frames = 0
         
         logger.info("AGC adaptation state reset")
     

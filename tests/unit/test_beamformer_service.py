@@ -273,8 +273,10 @@ class TestMVDRBeamformer:
         beamformer.reset_adaptation()
         
         assert beamformer.adaptation_count == 0
-        assert beamformer.covariance_matrices is Nonecl
-ass TestBeamformerService:
+        assert beamformer.covariance_matrices is None
+
+
+class TestBeamformerService:
     """Test beamformer service functionality."""
     
     async def test_beamformer_service_initialization(self):

@@ -1,0 +1,63 @@
+{
+  "power_profile": {
+    "name": "classroom",
+    "description": "教室模式 - 针对教室环境优化",
+    "cpu_governor": "ondemand",
+    "cpu_max_freq": null,
+    "cpu_cores_enabled": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "memory_limit_mb": null,
+    "audio_buffer_multiplier": 1.2,
+    "processing_priority": "normal",
+    "service_configs": {
+      "ssl": {
+        "update_interval_ms": 100
+      },
+      "beamformer": {
+        "algorithm": "DAS"
+      },
+      "denoise": {
+        "strength": "moderate"
+      },
+      "aec": {
+        "filter_length": 256,
+        "double_talk_detection": true
+      }
+    }
+  },
+  "current_usage": {
+    "timestamp": 1762140615.913864,
+    "cpu_percent": 12.6,
+    "memory_percent": 33.1,
+    "memory_mb": 42425,
+    "disk_io_read": 661942304768,
+    "disk_io_write": 889327669248,
+    "network_io_sent": 3334332416,
+    "network_io_recv": 8398711808,
+    "audio_dropouts": 0,
+    "processing_latency": 0.0
+  },
+  "optimizations": {
+    "applied": [],
+    "failed": [
+      "禁用CPU空闲状态",
+      "调整内核参数",
+      "设置实时优先级",
+      "优化网络设置"
+    ],
+    "recommendations": [
+      "定期监控系统资源使用情况",
+      "根据实际负载调整电源配置文件",
+      "确保音频设备驱动程序是最新版本",
+      "考虑使用SSD存储以减少I/O延迟"
+    ]
+  },
+  "recommendations": [],
+  "generated_at": "2025-11-03T11:30:15.913985"
+}

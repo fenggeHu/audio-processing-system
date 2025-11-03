@@ -86,8 +86,8 @@ class IntegrationTestEnvironment:
     def __init__(self, config: AudioConfig):
         self.config = config
         self.service_manager: Optional[ServiceManager] = None
-        self.test_data_dir = Path("test_data")
-        self.results_dir = Path("test_results")
+        self.test_data_dir = Path("tests/data")
+        self.results_dir = Path("tests/results")
         self.is_setup = False
         
         # Ensure directories exist
@@ -447,7 +447,7 @@ class RegressionTestSuite:
     
     def __init__(self, environment: IntegrationTestEnvironment):
         self.environment = environment
-        self.baseline_dir = Path("test_baselines")
+        self.baseline_dir = Path("tests/baselines")
         self.baseline_dir.mkdir(exist_ok=True)
     
     async def capture_baseline(self, test_name: str, test_data: Dict[str, Any]):

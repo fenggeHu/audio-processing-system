@@ -314,8 +314,10 @@ class TestDualPathProcessor:
         
         assert pa_target != recording_target
         # PA should have higher target level (less headroom)
-        assert pa_target > recording_targetc
-lass TestClassroomMixerService:
+        assert pa_target > recording_target
+
+
+class TestClassroomMixerService:
     """Test classroom mixer service functionality."""
     
     async def test_mixer_service_initialization(self):

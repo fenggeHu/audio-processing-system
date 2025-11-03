@@ -26,8 +26,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from audio_processing.models import AudioConfig
-from tests.integration_test_framework import create_integration_test_framework, TestSuite
-from tests.test_end_to_end_integration import EndToEndIntegrationTests
+from tests.unit.integration_test_framework import create_integration_test_framework, TestSuite
+from tests.unit.test_end_to_end_integration import EndToEndIntegrationTests
 
 
 class AutomatedIntegrationTestRunner:
@@ -36,7 +36,7 @@ class AutomatedIntegrationTestRunner:
     def __init__(self, config: AudioConfig, options: Dict[str, Any] = None):
         self.config = config
         self.options = options or {}
-        self.results_dir = Path("integration_test_results")
+        self.results_dir = Path("tests/results")
         self.results_dir.mkdir(exist_ok=True)
         
         # Test execution options
@@ -218,7 +218,7 @@ class AutomatedIntegrationTestRunner:
     
     async def _run_regression_tests(self, environment, regression_suite) -> Dict[str, Any]:
         """Run regression testing."""
-        from tests.test_audio_mock_generator import MockAudioGenerator
+        from tests.unit.test_audio_mock_generator import MockAudioGenerator
         import numpy as np
         
         regression_results = {
@@ -495,8 +495,8 @@ def parse_arguments():
     parser.add_argument(
         '--output-dir',
         type=str,
-        default='integration_test_results',
-        help='Output directory for test results (default: integration_test_results)'
+        default='tests/results',
+        help='Output directory for test results (default: tests/results)'
     )
     
     return parser.parse_args()

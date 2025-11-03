@@ -1,144 +1,136 @@
-# Audio Processing System Unit Tests
+# Tests Directory Structure
 
-This directory contains comprehensive unit tests for the audio processing system, focusing on core functionality and performance validation.
+This directory contains all test-related files and directories for the audio processing system, consolidated into a well-organized structure. All test directories have been migrated from the project root into this centralized location.
 
-## Test Structure
+## Directory Structure
 
-### Core Model Tests
-- `test_models.py` - Tests for AudioFrame, AudioConfig, ProcessingResult, and AudioMetrics data models
+### Core Test Directories
+- **unit/** - Unit tests for individual components and services
+  - Contains comprehensive test suite for all audio processing modules
+  - Includes test configuration files and utilities
+- **integration/** - Integration tests for component interactions
+  - End-to-end testing scenarios
+  - Multi-service interaction tests
 
-### Service Tests
-- `test_agc_service.py` - Tests for Automatic Gain Control service including source identification, howling protection, and gain control
-- `test_beamformer_service.py` - Tests for beamforming services (DAS and MVDR algorithms)
-- `test_mixer_service.py` - Tests for classroom mixer service with dual-path processing
-- `test_ssl_service.py` - Tests for Sound Source Localization service (existing)
-- `test_aec_service.py` - Tests for Acoustic Echo Cancellation service (existing)
-- Other existing service tests...
+### Supporting Test Infrastructure
+- **config/** - Test configuration files and settings
+  - `classroom_standard.json` - Standard classroom audio configuration
+  - Environment-specific test configurations
+- **data/** - Test data files, audio samples, and fixtures
+  - Audio test files for processing validation
+  - Mock data for testing scenarios
+- **baselines/** - Performance baseline data and reference files
+  - Performance benchmarks and reference outputs
+  - Quality assessment baselines
 
-### Test Utilities
-- `test_audio_mock_generator.py` - Mock audio data generator for creating realistic test signals
-- `test_performance_benchmarks.py` - Performance benchmarks and stress tests
+### Test Results and Artifacts
+- **results/** - Test execution results and reports
+  - Test run reports and logs
+  - Performance test results
+- **output/** - Test output artifacts and generated files
+  - Generated test files and temporary outputs
+  - Processing result validation files
 
-## Mock Audio Generator
-
-The `MockAudioGenerator` class provides realistic test audio data including:
-
-### Signal Types
-- **Silence** - Pure silence for baseline testing
-- **White Noise** - Random noise for general testing
-- **Pink Noise** - 1/f spectrum noise for more realistic testing
-- **Sine Wave** - Pure tones for frequency-specific testing
-- **Speech-like** - Synthetic speech with formants and modulation
-- **Teacher Voice** - Projected, clear speech characteristics
-- **Student Voice** - Quieter, more hesitant speech patterns
-- **Classroom Ambient** - Background noise including HVAC and paper rustling
-- **Howling** - Feedback signals for testing anti-howling systems
-
-### Features
-- Configurable sample rates, frame sizes, and channel counts
-- Realistic spatial simulation for multichannel testing
-- SSL metadata generation for direction-dependent testing
-- Classroom scenario generation with multiple speakers
-- Sequence generation for temporal testing
-
-## Performance Benchmarks
-
-The performance benchmark suite tests:
-
-### Individual Service Performance
-- Processing latency (target: <40ms P95)
-- Real-time factor (target: >1.0x)
-- Throughput (frames per second)
-- Memory stability over time
-
-### Full Pipeline Performance
-- End-to-end latency through multiple services
-- Concurrent processing capabilities
-- Sustained load testing (30+ seconds)
-
-### Stress Tests
-- High frame rate processing
-- Memory leak detection
-- Concurrent stream processing
-- Error recovery testing
+### Specialized Test Areas
+- **demo/** - Demo packages and mock data for testing deployments
+  - Mock offline packages for deployment testing
+  - Portable installer test artifacts
+- **power/** - Power management test configurations
+  - Power optimization test settings
+  - Battery usage test configurations
+- **terminal/** - Terminal device configuration tests
+  - Device-specific configuration tests
+  - Terminal deployment validation
 
 ## Running Tests
 
-### Run All Tests
+### Basic Test Execution
 ```bash
-python -m pytest tests/ -v
+# Run all unit tests
+python -m pytest tests/unit/
+
+# Run integration tests
+python -m pytest tests/integration/
+
+# Run all tests
+python -m pytest tests/
+
+# Run with coverage reporting
+python -m pytest tests/ --cov=src/audio_processing
 ```
 
-### Run Specific Test Categories
+### Specialized Test Scripts
 ```bash
-# Core models
-python -m pytest tests/test_models.py -v
+# Run integration tests with custom configuration
+python run_integration_tests.py
 
-# Mock generator
-python -m pytest tests/test_audio_mock_generator.py -v
+# Run automated integration test suite
+python run_automated_integration_tests.py
 
-# Service tests
-python -m pytest tests/test_agc_service.py -v
-python -m pytest tests/test_beamformer_service.py -v
-python -m pytest tests/test_mixer_service.py -v
-
-# Performance benchmarks
-python -m pytest tests/test_performance_benchmarks.py -v
+# Validate specific service functionality
+python validate_control_service.py
+python validate_integration_framework.py
 ```
 
-### Run Performance Benchmarks
-```bash
-# Run benchmarks and see detailed results
-python tests/test_performance_benchmarks.py
-```
+## Test Organization Guidelines
 
-## Test Coverage
+### Adding New Tests
+- **Unit tests**: Place in `tests/unit/test_<module_name>.py`
+- **Integration tests**: Place in `tests/integration/test_<feature_name>.py`
+- **Test data**: Store in `tests/data/` with descriptive names
+- **Test configurations**: Add to `tests/config/` following existing patterns
 
-The unit test suite covers:
+### Test Data Management
+- Use `tests/data/` for all test audio files and fixtures
+- Keep test data files small and focused
+- Document test data purpose in comments or README files
 
-### Core Functionality
-- ✅ Data model validation and operations
-- ✅ Audio frame processing and conversion
-- ✅ Configuration management and validation
-- ✅ Processing result handling
+### Configuration Testing
+- Store test-specific configurations in `tests/config/`
+- Use environment-specific config files for different test scenarios
+- Validate configurations before running tests
 
-### Service Testing
-- ✅ AGC service with source identification and howling protection
-- ✅ Beamformer service with DAS and MVDR algorithms
-- ✅ Mixer service with dual-path processing
-- ✅ SSL service (existing comprehensive tests)
-- ✅ AEC service (existing comprehensive tests)
-- ✅ Other services (existing tests)
+## Migration Notes
 
-### Performance Validation
-- ✅ Real-time processing requirements (<40ms latency)
-- ✅ Throughput requirements (>1.0x real-time factor)
-- ✅ Memory stability over extended periods
-- ✅ Concurrent processing capabilities
+### Directory Consolidation (Completed)
+This test structure was created by consolidating the following root-level directories:
+- `test_config/` → `tests/config/`
+- `test_data/` → `tests/data/`
+- `test_baselines/` → `tests/baselines/`
+- `test_results/` → `tests/results/`
+- `test_output/` → `tests/output/`
+- `test_demo/` → `tests/demo/`
+- `test_power/` → `tests/power/`
+- `test_terminal/` → `tests/terminal/`
 
-### Integration Scenarios
-- ✅ Classroom audio processing scenarios
-- ✅ Multi-service pipeline processing
-- ✅ Error handling and recovery
-- ✅ Configuration changes during operation
+### Updated References
+All path references in the following files have been updated:
+- `pyproject.toml` - Test discovery configuration
+- `run_integration_tests.py` - Test execution scripts
+- `run_automated_integration_tests.py` - Automated test runner
+- Configuration files in `config/` and `deploy/config/`
 
-## Key Testing Principles
+### For Team Members
+- **Old paths no longer exist**: All `test_*` directories at project root have been moved
+- **Update your scripts**: If you have local scripts referencing old paths, update them to use `tests/` subdirectories
+- **IDE configuration**: Update your IDE test discovery settings to use the new `tests/` structure
+- **Bookmarks**: Update any bookmarks or shortcuts pointing to old test directories
 
-1. **Minimal Test Solutions** - Tests focus on core functionality without over-testing edge cases
-2. **Real Functionality Validation** - No mocks for core logic, tests validate actual behavior
-3. **Performance Focus** - All tests include performance validation against real-time requirements
-4. **Classroom Scenarios** - Tests include realistic classroom audio processing scenarios
-5. **Error Handling** - Tests validate proper error handling and recovery mechanisms
+### Backward Compatibility
+- All existing functionality is preserved
+- Test discovery and execution work the same way
+- No changes needed to test writing patterns
+- Configuration loading automatically uses new paths
 
-## Test Data Generation
+## Troubleshooting
 
-The mock audio generator creates realistic test data that:
-- Simulates actual classroom acoustics
-- Includes spatial characteristics for multichannel testing
-- Provides consistent, reproducible test signals
-- Supports various audio processing scenarios
-- Generates appropriate metadata for service testing
+### Common Issues After Migration
+1. **Tests not discovered**: Ensure your test runner is configured to look in `tests/` directory
+2. **Configuration not found**: Check that config loading uses `tests/config/` path
+3. **Test data missing**: Verify test data references point to `tests/data/`
+4. **Path errors in scripts**: Update any hardcoded paths in custom scripts
 
-This comprehensive test suite ensures the audio processing system meets its real-time performance requirements while maintaining high audio quality in classroom environments.
-</content>
-</invoke>
+### Getting Help
+- Check the main project README.md for general testing information
+- Review individual test files for specific testing patterns
+- Consult the design document at `.kiro/specs/test-directory-consolidation/design.md` for migration details

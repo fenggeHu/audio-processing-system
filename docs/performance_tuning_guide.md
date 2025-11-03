@@ -630,7 +630,7 @@ def run_regression_test():
     current_results = benchmark_audio_processing()
     
     # 加载历史基线
-    baseline_file = Path("test_baselines/performance_baseline.json")
+    baseline_file = Path("tests/baselines/performance_baseline.json")
     if baseline_file.exists():
         with open(baseline_file, 'r') as f:
             baseline = json.load(f)

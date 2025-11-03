@@ -531,6 +531,44 @@ class PluginRegistry:
         self._save_registry()
         logger.info("Registry imported", path=import_path, merge=merge)
     
+    def get_load_order(self) -> List[str]:
+        """
+        Get the load order of all registered plugins based on dependencies.
+        
+        Returns:
+            List of plugin names in dependency order
+        """
+        load_order = []
+        visited = set()
+        visiting = set()
+        
+        def visit(plugin_name: str) -> None:
+            if plugin_name in visiting:
+                raise PluginError(f"Circular dependency detected: {plugin_name}")
+            
+            if plugin_name in visited:
+                return
+            
+            visiting.add(plugin_name)
+            
+            metadata = self.get_plugin(plugin_name)
+            if metadata:
+                # Visit dependencies first
+                for dep in metadata.dependencies:
+                    if not dep.optional and dep.name in self._plugins:
+                        visit(dep.name)
+            
+            visiting.remove(plugin_name)
+            visited.add(plugin_name)
+            load_order.append(plugin_name)
+        
+        # Visit all plugins
+        for plugin_name in self._plugins.keys():
+            if plugin_name not in visited:
+                visit(plugin_name)
+        
+        return load_order
+
     def _load_registry(self) -> None:
         """Load registry from file."""
         if not self.registry_file.exists():

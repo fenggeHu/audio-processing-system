@@ -488,3 +488,227 @@ class MVDRBeamformer:
         self.covariance_matrices = None
         self.adaptation_count = 0
         logger.info("MVDR adaptation state reset")
+
+
+class BeamformerService(BaseAudioProcessor):
+    """
+    Beamforming Service for directional audio enhancement.
+    
+    Provides real-time beamforming with SSL-based adaptive steering
+    and multiple algorithm support (DAS, MVDR).
+    """
+    
+    def __init__(self, service_name: str, config: AudioConfig,
+                 microphone_positions: List[MicrophonePosition],
+                 algorithm: BeamformingAlgorithm = BeamformingAlgorithm.DAS,
+                 mode: BeamformingMode = BeamformingMode.ADAPTIVE,
+                 metrics_collector: Optional[IMetricsCollector] = None):
+        super().__init__(service_name, config, metrics_collector)
+        
+        self.microphone_positions = microphone_positions
+        self.algorithm = algorithm
+        self.mode = mode
+        
+        # Initialize beamformers
+        self.das_beamformer = DelayAndSumBeamformer(
+            microphone_positions=microphone_positions,
+            sample_rate=config.sample_rate,
+            frame_size=config.frame_size
+        )
+        
+        self.mvdr_beamformer = MVDRBeamformer(
+            microphone_positions=microphone_positions,
+            sample_rate=config.sample_rate,
+            frame_size=config.frame_size
+        )
+        
+        # Current beam configuration
+        self.current_beam_pattern = BeamPattern(
+            target_azimuth=0.0,
+            target_elevation=0.0,
+            beam_width=60.0,
+            sidelobe_level=-20.0
+        )
+        
+        # SSL integration
+        self.ssl_enabled = True
+        self.direction_update_threshold = 10.0  # degrees
+        self.last_ssl_update = time.time()
+        
+        # Performance metrics
+        self.beamforming_metrics = {
+            'frames_processed': 0,
+            'direction_updates': 0,
+            'algorithm_switches': 0,
+            'avg_processing_time': 0.0
+        }
+        
+        logger.info(
+            "Beamformer Service initialized",
+            service=service_name,
+            algorithm=algorithm.value,
+            mode=mode.value,
+            microphones=len(microphone_positions)
+        )
+    
+    async def _initialize(self) -> None:
+        """Initialize beamformer service."""
+        logger.info("Initializing beamformer service", service=self.service_name)
+        
+        if len(self.microphone_positions) < 2:
+            raise ServiceError("Beamforming requires at least 2 microphones")
+        
+        if len(self.microphone_positions) != self._audio_config.channels:
+            raise ServiceError(
+                f"Microphone count ({len(self.microphone_positions)}) "
+                f"doesn't match audio channels ({self._audio_config.channels})"
+            )
+    
+    async def _cleanup(self) -> None:
+        """Cleanup beamformer service."""
+        logger.info("Beamformer service cleaned up")
+    
+    async def _process_frame(self, frame: AudioFrame) -> AudioFrame:
+        """Process audio frame for beamforming."""
+        start_time = time.time()
+        
+        try:
+            # Validate input frame
+            if frame.channels != len(self.microphone_positions):
+                raise ProcessingError(
+                    f"Audio frame has {frame.channels} channels, "
+                    f"but {len(self.microphone_positions)} microphones configured"
+                )
+            
+            # Update beam direction from SSL if available
+            if self.ssl_enabled and self.mode == BeamformingMode.ADAPTIVE:
+                self._update_beam_direction_from_ssl(frame)
+            
+            # Apply beamforming based on selected algorithm
+            if self.algorithm == BeamformingAlgorithm.DAS:
+                weights = self.das_beamformer.compute_weights(
+                    self.current_beam_pattern.target_azimuth,
+                    self.current_beam_pattern.target_elevation
+                )
+                output_frame = self.das_beamformer.apply_beamforming(frame, weights)
+            elif self.algorithm == BeamformingAlgorithm.MVDR:
+                # Update covariance matrices with current frame
+                self.mvdr_beamformer.update_covariance(frame)
+                
+                weights = self.mvdr_beamformer.compute_weights(
+                    self.current_beam_pattern.target_azimuth,
+                    self.current_beam_pattern.target_elevation
+                )
+                output_frame = self.mvdr_beamformer.apply_beamforming(frame, weights)
+            else:
+                # Fallback to DAS
+                weights = self.das_beamformer.compute_weights(
+                    self.current_beam_pattern.target_azimuth,
+                    self.current_beam_pattern.target_elevation
+                )
+                output_frame = self.das_beamformer.apply_beamforming(frame, weights)
+            
+            # Update metrics
+            processing_time = (time.time() - start_time) * 1000
+            self.beamforming_metrics['frames_processed'] += 1
+            self._update_processing_time_metric(processing_time)
+            
+            return output_frame
+            
+        except ProcessingError:
+            # Re-raise processing errors to be handled by base class
+            raise
+        except Exception as e:
+            logger.error("Beamforming processing error", error=str(e))
+            # Convert to ProcessingError for proper handling
+            raise ProcessingError(f"Beamforming failed: {e}")
+    
+    def _update_beam_direction_from_ssl(self, frame: AudioFrame) -> None:
+        """Update beam direction based on SSL information in frame metadata."""
+        if not frame.metadata:
+            return
+        
+        ssl_azimuth = frame.metadata.get('ssl_azimuth')
+        ssl_elevation = frame.metadata.get('ssl_elevation', 0.0)
+        ssl_confidence = frame.metadata.get('ssl_confidence', 0.0)
+        
+        if ssl_azimuth is None or ssl_confidence < 0.5:
+            return
+        
+        # Check if direction change is significant
+        azimuth_diff = abs(ssl_azimuth - self.current_beam_pattern.target_azimuth)
+        if azimuth_diff > self.direction_update_threshold:
+            self.current_beam_pattern.target_azimuth = ssl_azimuth
+            self.current_beam_pattern.target_elevation = ssl_elevation
+            self.beamforming_metrics['direction_updates'] += 1
+            self.last_ssl_update = time.time()
+            
+            logger.debug(
+                "Beam direction updated from SSL",
+                azimuth=ssl_azimuth,
+                elevation=ssl_elevation,
+                confidence=ssl_confidence
+            )
+    
+    def _update_processing_time_metric(self, processing_time: float) -> None:
+        """Update average processing time metric."""
+        frames_processed = self.beamforming_metrics['frames_processed']
+        current_avg = self.beamforming_metrics['avg_processing_time']
+        
+        # Running average
+        new_avg = ((current_avg * (frames_processed - 1)) + processing_time) / frames_processed
+        self.beamforming_metrics['avg_processing_time'] = new_avg
+    
+    def set_beam_direction(self, azimuth: float, elevation: float = 0.0) -> None:
+        """Manually set beam direction."""
+        self.current_beam_pattern.target_azimuth = azimuth
+        self.current_beam_pattern.target_elevation = elevation
+        
+        logger.info(
+            "Beam direction set manually",
+            azimuth=azimuth,
+            elevation=elevation
+        )
+    
+    def get_beam_direction(self) -> Tuple[float, float]:
+        """Get current beam direction."""
+        return (
+            self.current_beam_pattern.target_azimuth,
+            self.current_beam_pattern.target_elevation
+        )
+    
+    def set_algorithm(self, algorithm: BeamformingAlgorithm) -> None:
+        """Switch beamforming algorithm."""
+        if algorithm != self.algorithm:
+            self.algorithm = algorithm
+            self.beamforming_metrics['algorithm_switches'] += 1
+            
+            logger.info(
+                "Beamforming algorithm changed",
+                new_algorithm=algorithm.value
+            )
+    
+    def set_mode(self, mode: BeamformingMode) -> None:
+        """Set beamforming mode."""
+        self.mode = mode
+        
+        logger.info(
+            "Beamforming mode changed",
+            new_mode=mode.value
+        )
+    
+    def get_beamforming_metrics(self) -> Dict[str, Any]:
+        """Get beamforming-specific metrics."""
+        return {
+            **self.beamforming_metrics,
+            'current_azimuth': self.current_beam_pattern.target_azimuth,
+            'current_elevation': self.current_beam_pattern.target_elevation,
+            'algorithm': self.algorithm.value,
+            'mode': self.mode.value,
+            'ssl_enabled': self.ssl_enabled,
+            'microphone_count': len(self.microphone_positions)
+        }
+    
+    def get_beamformer_metrics(self) -> Dict[str, Any]:
+        """Alias for get_beamforming_metrics for backward compatibility."""
+        return self.get_beamforming_metrics()

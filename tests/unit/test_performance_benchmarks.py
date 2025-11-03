@@ -19,7 +19,7 @@ from src.audio_processing.services.ssl import SSLService, create_linear_array
 from src.audio_processing.services.agc import AGCService, AGCMode
 from src.audio_processing.services.beamformer import BeamformerService, BeamformingAlgorithm
 from src.audio_processing.services.mixer import ClassroomMixerService
-from tests.test_audio_mock_generator import MockAudioGenerator, SignalType
+from tests.unit.test_audio_mock_generator import MockAudioGenerator, SignalType
 
 
 class PerformanceBenchmark:
@@ -176,7 +176,8 @@ class TestPerformanceBenchmarks:
     async def test_aec_service_performance(self, benchmark, test_frames):
         """Benchmark AEC service performance."""
         config = AudioConfig(sample_rate=48000, frame_size=480, channels=1)
-        aec_service = AECService("BenchmarkAEC", config, mode=AECMode.FULL_DUPLEX)
+        aec_service = AECService("BenchmarkAEC", config)
+        aec_service.mode = AECMode.FULL_DUPLEX
         
         # Enable test reference for benchmarking
         aec_service._enable_test_reference(True)

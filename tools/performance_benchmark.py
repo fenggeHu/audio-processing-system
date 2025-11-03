@@ -35,7 +35,7 @@ class AudioProcessingBenchmark:
     def __init__(self, config_path: str = "config/classroom_environments.yaml"):
         self.config_path = config_path
         self.results: List[BenchmarkResult] = []
-        self.test_data_dir = Path("test_data")
+        self.test_data_dir = Path("tests/data")
         self.test_data_dir.mkdir(exist_ok=True)
         
     def run_all_benchmarks(self) -> Dict:

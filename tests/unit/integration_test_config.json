@@ -86,7 +86,7 @@
     },
     "regression_testing": {
       "enabled": true,
-      "baseline_directory": "test_baselines",
+      "baseline_directory": "tests/baselines",
       "test_scenarios": [
         {
           "name": "denoise_performance",
@@ -156,7 +156,7 @@
       }
     },
     "reporting": {
-      "output_directory": "integration_test_results",
+      "output_directory": "tests/results",
       "report_formats": ["json", "html"],
       "include_detailed_logs": true,
       "include_performance_graphs": false,

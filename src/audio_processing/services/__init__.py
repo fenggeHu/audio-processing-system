@@ -7,6 +7,7 @@ audio processing services like SSL, AEC, beamforming, etc.
 
 from .ssl import SSLService
 from .aec import AECService
+from .beamformer import BeamformerService
 from .capture import CaptureService
 from .denoise import DenoiseService
 from .agc import AGCService
@@ -24,7 +25,8 @@ from .classroom_calibration import (
 
 __all__ = [
     'SSLService',
-    'AECService', 
+    'AECService',
+    'BeamformerService',
     'CaptureService',
     'DenoiseService',
     'AGCService',

@@ -18,14 +18,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from audio_processing.models import AudioFrame, AudioConfig
-from tests.integration_test_framework import (
+from tests.unit.integration_test_framework import (
     IntegrationTestEnvironment, 
     AutomatedTestRunner, 
     RegressionTestSuite,
     TestSuite,
     create_integration_test_framework
 )
-from tests.test_audio_mock_generator import MockAudioGenerator
+from tests.unit.test_audio_mock_generator import MockAudioGenerator
 
 
 class EndToEndIntegrationTests:

@@ -123,6 +123,7 @@ class AudioConfig(BaseModel):
     frame_size: int = Field(480, ge=64, le=2048, description="Frame size in samples (10ms at 48kHz)")
     channels: int = Field(8, ge=1, le=32, description="Number of audio channels")
     buffer_size: int = Field(4096, ge=512, le=16384, description="Buffer size in samples")
+    bit_depth: int = Field(16, ge=8, le=32, description="Audio bit depth (8, 16, 24, or 32 bits)")
     
     # Processing parameters
     enable_ssl: bool = Field(True, description="Enable sound source localization")

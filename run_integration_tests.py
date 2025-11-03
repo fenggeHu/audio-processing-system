@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from audio_processing.models import AudioConfig
-from tests.integration_test_framework import create_integration_test_framework
+from tests.unit.integration_test_framework import create_integration_test_framework
 from run_automated_integration_tests import AutomatedIntegrationTestRunner
 
 # Legacy test result tracking for backward compatibility
@@ -108,7 +108,7 @@ async def run_performance_benchmark(results: TestResults):
     
     try:
         # Import and run performance tests
-        from tests.test_performance_validation import run_performance_benchmark
+        from tests.unit.test_performance_validation import run_performance_benchmark
         
         success = await run_performance_benchmark()
         
@@ -131,7 +131,7 @@ async def run_classroom_validation(results: TestResults):
     print(f"{'='*60}")
     
     try:
-        from tests.test_classroom_scenarios import run_classroom_validation
+        from tests.unit.test_classroom_scenarios import run_classroom_validation
         
         await run_classroom_validation()
         results.add_result('Classroom Validation', 'PASSED')
@@ -201,7 +201,8 @@ def generate_test_report(results: TestResults):
             print(f"    Error: {result['details']['error']}")
     
     # Save detailed report to file
-    report_file = Path('integration_test_report.json')
+    report_file = Path('tests/results/integration_test_report.json')
+    report_file.parent.mkdir(parents=True, exist_ok=True)
     with open(report_file, 'w') as f:
         json.dump(summary, f, indent=2, default=str)
     
@@ -273,7 +274,8 @@ async def main():
         success = generate_test_report(results)
         
         # Also save new framework report
-        report_file = Path('integration_test_framework_report.json')
+        report_file = Path('tests/results/integration_test_framework_report.json')
+        report_file.parent.mkdir(parents=True, exist_ok=True)
         with open(report_file, 'w') as f:
             json.dump(report, f, indent=2, default=str)
         print(f"\nNew framework report saved to: {report_file}")

@@ -967,8 +967,8 @@ class ClassroomMixerService(BaseAudioProcessor):
             Dictionary mapping output types to current levels in dBFS
         """
         return {
-            OutputType.PA_SYSTEM: self.mixer_metrics.pa_level_dbfs,
-            OutputType.RECORDING: self.mixer_metrics.recording_level_dbfs
+            OutputType.PA_SYSTEM: float(self.mixer_metrics.pa_level_dbfs),
+            OutputType.RECORDING: float(self.mixer_metrics.recording_level_dbfs)
         }
     
     async def mute_output(self, output_type: OutputType, muted: bool = True) -> None:

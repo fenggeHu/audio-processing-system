@@ -17,7 +17,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from audio_processing.models import AudioConfig
-from tests.integration_test_framework import create_integration_test_framework, TestSuite
+from tests.unit.integration_test_framework import create_integration_test_framework, TestSuite
 
 
 async def validate_framework_setup():
@@ -87,7 +87,7 @@ async def validate_framework_setup():
         
         # Test 5: Regression Testing Setup
         print("5. Testing regression testing setup...")
-        baseline_dir = Path("test_baselines")
+        baseline_dir = Path("tests/baselines")
         if baseline_dir.exists() or True:  # Directory will be created if needed
             print("   ✓ Regression testing directory accessible")
         else:
@@ -96,7 +96,7 @@ async def validate_framework_setup():
         
         # Test 6: Results Directory
         print("6. Testing results directory...")
-        results_dir = Path("integration_test_results")
+        results_dir = Path("tests/results")
         results_dir.mkdir(exist_ok=True)
         if results_dir.exists() and results_dir.is_dir():
             print("   ✓ Results directory available")
@@ -106,7 +106,7 @@ async def validate_framework_setup():
         
         # Test 7: Configuration Loading
         print("7. Testing configuration loading...")
-        config_file = Path("tests/integration_test_config.json")
+        config_file = Path("tests/unit/integration_test_config.json")
         if config_file.exists():
             import json
             with open(config_file, 'r') as f:
@@ -138,7 +138,7 @@ async def run_quick_integration_test():
     print("-" * 30)
     
     try:
-        from tests.test_audio_mock_generator import MockAudioGenerator
+        from tests.unit.test_audio_mock_generator import MockAudioGenerator
         
         # Setup
         config = AudioConfig(sample_rate=48000, frame_size=480, channels=2)
@@ -187,10 +187,10 @@ def print_framework_info():
     print("=" * 40)
     
     framework_files = [
-        "tests/integration_test_framework.py",
-        "tests/test_end_to_end_integration.py", 
+        "tests/unit/integration_test_framework.py",
+        "tests/unit/test_end_to_end_integration.py", 
         "run_automated_integration_tests.py",
-        "tests/integration_test_config.json"
+        "tests/unit/integration_test_config.json"
     ]
     
     print("Framework Components:")
