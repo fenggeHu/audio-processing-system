@@ -12,6 +12,15 @@ from .denoise import DenoiseService
 from .agc import AGCService
 from .mixer import ClassroomMixerService
 from .recorder import RecorderService
+from .telemetry import TelemetryService, MetricsCollector
+from .classroom_calibration import (
+    ClassroomCalibrationService,
+    TeachingScenarioManager,
+    ClassroomPerformanceOptimizer,
+    CalibrationResult,
+    TeachingScenario,
+    ScenarioConfig
+)
 
 __all__ = [
     'SSLService',
@@ -20,5 +29,13 @@ __all__ = [
     'DenoiseService',
     'AGCService',
     'ClassroomMixerService',
-    'RecorderService'
+    'RecorderService',
+    'TelemetryService',
+    'MetricsCollector',
+    'ClassroomCalibrationService',
+    'TeachingScenarioManager',
+    'ClassroomPerformanceOptimizer',
+    'CalibrationResult',
+    'TeachingScenario',
+    'ScenarioConfig'
 ]

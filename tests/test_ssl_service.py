@@ -8,8 +8,8 @@ import numpy as np
 import math
 from datetime import datetime
 
-from audio_processing.models import AudioConfig, AudioFrame
-from audio_processing.services.ssl import (
+from src.audio_processing.models import AudioConfig, AudioFrame
+from src.audio_processing.services.ssl import (
     SSLService, MicrophonePosition, DirectionEstimate, ClassroomArea,
     ClassroomGeometry, SRPPHATProcessor, DirectionTracker,
     create_linear_array, create_circular_array, create_classroom_array

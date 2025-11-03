@@ -1,0 +1,196 @@
+{
+  "system": {
+    "name": "AudioProcessingSystem",
+    "version": "1.0.0",
+    "environment": "development",
+    "debug": true
+  },
+  "audio": {
+    "sample_rate": 48000,
+    "frame_size": 480,
+    "channels": 4,
+    "buffer_size": 2048,
+    "device_config": {
+      "input_device": null,
+      "output_device": null,
+      "input_channels": 4,
+      "output_channels": 2
+    }
+  },
+  "classroom": {
+    "room_dimensions": {
+      "length": 8.0,
+      "width": 6.0,
+      "height": 3.0
+    },
+    "microphone_array": {
+      "positions": [
+        [0.0, 0.0, 2.5],
+        [2.0, 0.0, 2.5],
+        [0.0, 2.0, 2.5],
+        [2.0, 2.0, 2.5]
+      ],
+      "geometry": "rectangular"
+    },
+    "speaker_positions": [
+      [1.0, 6.0, 2.8],
+      [3.0, 6.0, 2.8]
+    ],
+    "teacher_area": {
+      "x_range": [0.0, 4.0],
+      "y_range": [0.0, 2.0]
+    },
+    "student_area": {
+      "x_range": [0.0, 4.0],
+      "y_range": [2.0, 6.0]
+    }
+  },
+  "services": {
+    "capture": {
+      "enabled": true,
+      "priority": 10,
+      "config": {
+        "sync_tolerance_ms": 2.0,
+        "timestamp_precision": "millisecond"
+      }
+    },
+    "ssl": {
+      "enabled": true,
+      "priority": 9,
+      "config": {
+        "algorithm": "SRP-PHAT",
+        "update_interval_ms": 200,
+        "direction_smoothing": 0.5,
+        "min_confidence": 0.4
+      }
+    },
+    "beamformer": {
+      "enabled": true,
+      "priority": 8,
+      "config": {
+        "algorithm": "DAS",
+        "adaptation_rate": 0.05,
+        "noise_floor_db": -35.0
+      }
+    },
+    "aec": {
+      "enabled": true,
+      "priority": 7,
+      "config": {
+        "filter_length": 128,
+        "adaptation_rate": 0.05,
+        "double_talk_threshold": 0.3,
+        "erle_target_db": 15.0
+      }
+    },
+    "denoise": {
+      "enabled": true,
+      "priority": 6,
+      "config": {
+        "algorithm": "RNNoise",
+        "strength": "light",
+        "preserve_speech": true
+      }
+    },
+    "agc": {
+      "enabled": true,
+      "priority": 5,
+      "config": {
+        "target_level_dbfs": -15.0,
+        "max_gain_db": 15.0,
+        "attack_time_ms": 30.0,
+        "release_time_ms": 500.0,
+        "teacher_boost_db": 2.0,
+        "student_reduction_db": -3.0
+      }
+    },
+    "mixer": {
+      "enabled": true,
+      "priority": 4,
+      "config": {
+        "pa_output": {
+          "target_level_dbfs": -15.0,
+          "limiter_threshold_dbfs": -3.0,
+          "eq_enabled": false
+        },
+        "recording_output": {
+          "target_level_dbfs": -18.0,
+          "format": "mono",
+          "quality": "medium"
+        }
+      }
+    },
+    "recorder": {
+      "enabled": false,
+      "priority": 3,
+      "config": {
+        "formats": ["PCM"],
+        "bitrate": 64000,
+        "auto_segment": false,
+        "segment_duration_min": 10
+      }
+    },
+    "telemetry": {
+      "enabled": true,
+      "priority": 2,
+      "config": {
+        "metrics_interval_ms": 5000,
+        "log_level": "DEBUG",
+        "export_prometheus": false
+      }
+    },
+    "control": {
+      "enabled": true,
+      "priority": 1,
+      "config": {
+        "web_port": 8000,
+        "websocket_enabled": true,
+        "auth_required": false
+      }
+    }
+  },
+  "performance": {
+    "max_latency_ms": 60.0,
+    "cpu_limit_percent": 60.0,
+    "memory_limit_mb": 1024,
+    "optimization_mode": "development"
+  },
+  "logging": {
+    "level": "DEBUG",
+    "format": "text",
+    "file_path": "./logs/development.log",
+    "max_file_size_mb": 50,
+    "backup_count": 3,
+    "structured_logging": false
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": false,
+      "port": 9090,
+      "metrics_path": "/metrics"
+    },
+    "health_check": {
+      "enabled": true,
+      "interval_s": 60,
+      "timeout_s": 5
+    }
+  },
+  "security": {
+    "api_key_required": false,
+    "cors_enabled": true,
+    "allowed_origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+    "rate_limiting": {
+      "enabled": false,
+      "requests_per_minute": 120
+    }
+  },
+  "storage": {
+    "recordings_path": "./recordings",
+    "logs_path": "./logs",
+    "config_backup_path": "./backups",
+    "cleanup": {
+      "auto_cleanup": false,
+      "retention_days": 7
+    }
+  }
+}

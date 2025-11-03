@@ -1,0 +1,154 @@
+# 教室环境配置文件
+# Classroom Environment Configuration
+
+environments:
+  small_classroom:
+    name: "小型教室"
+    description: "适用于20-30人的小型教室"
+    capacity: 30
+    audio_settings:
+      sample_rate: 48000
+      buffer_size: 256
+      channels: 2
+      bit_depth: 16
+      gain_adjustment: 0.8
+      noise_gate_threshold: -40
+      reverb_compensation: 0.3
+      echo_cancellation: true
+      noise_suppression: true
+    
+    microphone_config:
+      type: "omnidirectional"
+      sensitivity: -37
+      max_spl: 120
+      frequency_response: "20Hz-20kHz"
+      placement: "ceiling_mounted"
+    
+    speaker_config:
+      type: "active_monitors"
+      power: "50W"
+      frequency_response: "50Hz-20kHz"
+      placement: "wall_mounted"
+      count: 2
+    
+    network_requirements:
+      bandwidth_mbps: 10
+      latency_ms: 20
+      jitter_ms: 5
+
+  medium_classroom:
+    name: "中型教室"
+    description: "适用于30-60人的中型教室"
+    capacity: 60
+    audio_settings:
+      sample_rate: 48000
+      buffer_size: 512
+      channels: 4
+      bit_depth: 16
+      gain_adjustment: 0.9
+      noise_gate_threshold: -35
+      reverb_compensation: 0.5
+      echo_cancellation: true
+      noise_suppression: true
+      adaptive_gain: true
+    
+    microphone_config:
+      type: "cardioid_array"
+      sensitivity: -35
+      max_spl: 125
+      frequency_response: "20Hz-20kHz"
+      placement: "ceiling_array"
+      count: 2
+    
+    speaker_config:
+      type: "line_array"
+      power: "100W"
+      frequency_response: "40Hz-20kHz"
+      placement: "wall_mounted"
+      count: 4
+    
+    network_requirements:
+      bandwidth_mbps: 20
+      latency_ms: 15
+      jitter_ms: 3
+
+  large_classroom:
+    name: "大型教室/礼堂"
+    description: "适用于60人以上的大型教室或礼堂"
+    capacity: 100
+    audio_settings:
+      sample_rate: 48000
+      buffer_size: 1024
+      channels: 6
+      bit_depth: 24
+      gain_adjustment: 1.0
+      noise_gate_threshold: -30
+      reverb_compensation: 0.7
+      echo_cancellation: true
+      noise_suppression: true
+      adaptive_gain: true
+      dynamic_range_compression: true
+    
+    microphone_config:
+      type: "shotgun_array"
+      sensitivity: -33
+      max_spl: 130
+      frequency_response: "20Hz-20kHz"
+      placement: "ceiling_grid"
+      count: 4
+    
+    speaker_config:
+      type: "distributed_system"
+      power: "200W"
+      frequency_response: "30Hz-20kHz"
+      placement: "distributed"
+      count: 6
+    
+    network_requirements:
+      bandwidth_mbps: 50
+      latency_ms: 10
+      jitter_ms: 2
+
+# 通用优化设置
+optimization_settings:
+  cpu_affinity: [0, 1, 2, 3]
+  thread_priority: "high"
+  memory_pool_size: "512MB"
+  gc_threshold: 0.8
+  
+  performance_profiles:
+    power_saving:
+      cpu_scaling: "powersave"
+      buffer_multiplier: 2.0
+      processing_threads: 2
+    
+    balanced:
+      cpu_scaling: "ondemand"
+      buffer_multiplier: 1.0
+      processing_threads: 4
+    
+    performance:
+      cpu_scaling: "performance"
+      buffer_multiplier: 0.5
+      processing_threads: 8
+
+# 故障排除配置
+troubleshooting:
+  log_levels:
+    system: "INFO"
+    audio: "DEBUG"
+    network: "WARNING"
+    performance: "INFO"
+  
+  monitoring_intervals:
+    cpu_usage: 5  # seconds
+    memory_usage: 5
+    audio_quality: 1
+    network_stats: 10
+  
+  alert_thresholds:
+    cpu_usage_percent: 80
+    memory_usage_percent: 85
+    audio_latency_ms: 50
+    packet_loss_percent: 1
+    jitter_ms: 10
