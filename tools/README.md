@@ -341,5 +341,5 @@ sudo ./install_offline.sh 2>&1 | tee install.log
 ---
 
 **版本**: v1.0.0  
-**更新日期**: 2024年1月  
+**更新日期**: 2025年11月  
 **维护者**: Audio Processing System Team

@@ -157,39 +157,98 @@ class OfflinePackager:
             for req in requirements:
                 f.write(f"{req}\n")
         
-        # 使用pip download下载包
-        cmd = [
+        # 智能下载策略：多种方案确保成功率
+        logger.info("开始下载Python包...")
+        
+        download_success = False
+        successful_packages = []
+        failed_packages = []
+        
+        # 策略1：尝试简单下载（适用于当前平台）
+        logger.info("策略1：标准下载...")
+        cmd_simple = [
             sys.executable, "-m", "pip", "download",
             "--requirement", str(req_file),
             "--dest", str(arch_dir),
-            "--no-deps",  # 先不下载依赖，后面单独处理
-            "--platform", self._get_pip_platform(architecture),
-            "--python-version", f"{sys.version_info.major}.{sys.version_info.minor}",
-            "--implementation", "cp",
-            "--abi", "cp310" if sys.version_info[:2] == (3, 10) else f"cp{sys.version_info.major}{sys.version_info.minor}",
-            "--only-binary=:all:"
+            "--prefer-binary"
         ]
         
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            logger.info("Python包下载完成")
+            result = subprocess.run(cmd_simple, capture_output=True, text=True, check=True)
+            logger.info("标准下载成功")
+            download_success = True
         except subprocess.CalledProcessError as e:
-            logger.error(f"下载失败: {e.stderr}")
-            # 尝试不指定平台的下载
-            cmd_fallback = [
-                sys.executable, "-m", "pip", "download",
-                "--requirement", str(req_file),
-                "--dest", str(arch_dir)
-            ]
-            subprocess.run(cmd_fallback, check=True)
+            logger.info("标准下载失败，尝试逐个下载...")
+            
+            # 策略2：逐个下载包，使用多种回退方案
+            for req in requirements:
+                package_downloaded = False
+                package_name = req.split('>=')[0].split('==')[0].split('<')[0].split('>')[0].strip()
+                
+                # 尝试1：下载指定版本
+                try:
+                    cmd_versioned = [
+                        sys.executable, "-m", "pip", "download",
+                        req,
+                        "--dest", str(arch_dir),
+                        "--prefer-binary"
+                    ]
+                    subprocess.run(cmd_versioned, capture_output=True, text=True, check=True)
+                    successful_packages.append(req)
+                    package_downloaded = True
+                    logger.debug(f"✓ 下载成功: {req}")
+                except subprocess.CalledProcessError:
+                    pass
+                
+                # 尝试2：下载最新版本（不指定版本约束）
+                if not package_downloaded:
+                    try:
+                        cmd_latest = [
+                            sys.executable, "-m", "pip", "download",
+                            package_name,
+                            "--dest", str(arch_dir),
+                            "--prefer-binary"
+                        ]
+                        subprocess.run(cmd_latest, capture_output=True, text=True, check=True)
+                        successful_packages.append(package_name)
+                        package_downloaded = True
+                        logger.debug(f"✓ 下载最新版本: {package_name}")
+                    except subprocess.CalledProcessError:
+                        pass
+                
+                # 尝试3：允许源码包
+                if not package_downloaded:
+                    try:
+                        cmd_source = [
+                            sys.executable, "-m", "pip", "download",
+                            package_name,
+                            "--dest", str(arch_dir),
+                            "--no-binary", ":all:"
+                        ]
+                        subprocess.run(cmd_source, capture_output=True, text=True, check=True)
+                        successful_packages.append(package_name)
+                        package_downloaded = True
+                        logger.debug(f"✓ 下载源码包: {package_name}")
+                    except subprocess.CalledProcessError:
+                        pass
+                
+                if not package_downloaded:
+                    failed_packages.append(req)
+                    logger.debug(f"✗ 无法下载: {req}")
+            
+            download_success = len(successful_packages) > 0
         
-        # 现在下载所有依赖
-        cmd_deps = [
-            sys.executable, "-m", "pip", "download",
-            "--requirement", str(req_file),
-            "--dest", str(arch_dir)
-        ]
-        subprocess.run(cmd_deps, check=True)
+        # 报告下载结果
+        if download_success:
+            logger.info(f"成功下载 {len(successful_packages)} 个包")
+            if failed_packages:
+                logger.warning(f"无法下载 {len(failed_packages)} 个包: {failed_packages}")
+                logger.warning("这些包可能需要在目标系统上手动安装或使用pip在线安装")
+        else:
+            logger.error("所有下载方案都失败了")
+            raise RuntimeError("无法下载任何Python包")
+        
+        logger.info("Python包下载完成")
         
         # 分析下载的包
         packages = []
@@ -206,12 +265,35 @@ class OfflinePackager:
     
     def _get_pip_platform(self, architecture: str) -> str:
         """获取pip平台标识符"""
-        platform_mapping = {
-            "x86_64": "linux_x86_64",
-            "aarch64": "linux_aarch64", 
-            "armv7l": "linux_armv7l"
-        }
-        return platform_mapping.get(architecture, "any")
+        import platform
+        
+        system = platform.system().lower()
+        
+        # 根据系统和架构生成平台标识符
+        if system == "linux":
+            platform_mapping = {
+                "x86_64": "linux_x86_64",
+                "aarch64": "linux_aarch64", 
+                "armv7l": "linux_armv7l"
+            }
+            return platform_mapping.get(architecture, f"linux_{architecture}")
+        elif system == "darwin":
+            # macOS平台
+            platform_mapping = {
+                "x86_64": "macosx_10_9_x86_64",
+                "aarch64": "macosx_11_0_arm64",
+                "arm64": "macosx_11_0_arm64"
+            }
+            return platform_mapping.get(architecture, f"macosx_11_0_{architecture}")
+        elif system == "windows":
+            platform_mapping = {
+                "x86_64": "win_amd64",
+                "amd64": "win_amd64",
+                "i386": "win32"
+            }
+            return platform_mapping.get(architecture, "win_amd64")
+        else:
+            return "any"
     
     def _analyze_package(self, package_path: Path) -> PackageInfo:
         """分析包信息"""
@@ -305,16 +387,57 @@ log_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
-# 检测操作系统
-detect_os() {
-    if [[ -f /etc/os-release ]]; then
-        . /etc/os-release
-        OS=$ID
-        VER=$VERSION_ID
-    else
-        log_error "无法检测操作系统"
+# 检查是否为root用户
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        log_error "此脚本需要root权限，请使用sudo运行"
         exit 1
     fi
+}
+
+# 检测操作系统
+detect_os() {
+    # 检测操作系统类型
+    case "$(uname -s)" in
+        Linux*)
+            # Linux系统，进一步检测发行版
+            if [[ -f /etc/os-release ]]; then
+                . /etc/os-release
+                OS=$ID
+                VER=$VERSION_ID
+            elif [[ -f /etc/redhat-release ]]; then
+                OS="centos"
+                VER=$(cat /etc/redhat-release | grep -oE '[0-9]+\\.[0-9]+' | head -1)
+            elif [[ -f /etc/debian_version ]]; then
+                OS="debian"
+                VER=$(cat /etc/debian_version)
+            else
+                OS="linux"
+                VER="unknown"
+            fi
+            ;;
+        Darwin*)
+            OS="macos"
+            VER=$(sw_vers -productVersion 2>/dev/null || echo "unknown")
+            log_warning "检测到macOS系统，系统依赖需要手动安装"
+            log_warning "请使用Homebrew安装依赖: brew install portaudio libsndfile fftw ffmpeg"
+            return 0
+            ;;
+        CYGWIN*|MINGW*|MSYS*)
+            OS="windows"
+            VER="unknown"
+            log_warning "检测到Windows系统，系统依赖需要手动安装"
+            log_warning "请参考文档安装相应的开发工具和库"
+            return 0
+            ;;
+        *)
+            OS="unknown"
+            VER="unknown"
+            log_warning "未知操作系统: $(uname -s)"
+            log_warning "请手动安装系统依赖"
+            return 0
+            ;;
+    esac
     
     log_info "检测到操作系统: $OS $VER"
 }
@@ -364,25 +487,59 @@ install_centos_deps() {
 main() {
     log_info "开始安装系统依赖..."
     
+    # 对于非Linux系统，不需要root权限检查
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        check_root
+    fi
+    
     detect_os
     
     case "$OS" in
         ubuntu|debian)
             install_ubuntu_deps
             ;;
-        centos|rhel|fedora)
+        centos|rhel|fedora|rocky|almalinux)
             install_centos_deps
             ;;
+        macos)
+            log_info "macOS系统依赖安装指南："
+            log_info "1. 安装Homebrew (如果尚未安装):"
+            log_info "   /bin/bash -c \\"\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\\""
+            log_info "2. 安装系统依赖:"
+            log_info "   brew install portaudio libsndfile fftw ffmpeg python@3.10"
+            log_info "3. 安装开发工具:"
+            log_info "   xcode-select --install"
+            log_info ""
+            log_info "系统依赖安装指南已显示，请手动执行上述命令"
+            ;;
+        windows)
+            log_info "Windows系统依赖安装指南："
+            log_info "1. 安装Visual Studio Build Tools"
+            log_info "2. 安装Python开发环境"
+            log_info "3. 参考项目文档安装音频处理库"
+            log_info ""
+            log_info "系统依赖安装指南已显示，请参考文档手动安装"
+            ;;
         *)
-            log_error "不支持的操作系统: $OS"
-            exit 1
+            log_warning "不支持的操作系统: $OS ($(uname -s))"
+            log_warning "请手动安装以下依赖包："
+            log_warning "- Python开发包 (python3-dev/python3-devel)"
+            log_warning "- PortAudio开发包 (portaudio19-dev/portaudio-devel)"
+            log_warning "- ALSA开发包 (libasound2-dev/alsa-lib-devel)"
+            log_warning "- libsndfile开发包 (libsndfile1-dev/libsndfile-devel)"
+            log_warning "- FFTW开发包 (libfftw3-dev/fftw-devel)"
+            log_warning "- FFmpeg (ffmpeg)"
+            log_warning "- 编译工具 (gcc, g++, make)"
             ;;
     esac
     
-    log_info "系统依赖安装完成！"
+    log_info "系统依赖处理完成！"
 }
 
-main "$@"
+# 如果直接运行此脚本
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
 '''
         
         script_path = self.scripts_dir / "install_system_deps.sh"
@@ -405,7 +562,17 @@ main "$@"
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-INSTALL_DIR="/opt/audio-processing-system"
+
+# 根据操作系统设置安装目录
+case "$(uname -s)" in
+    Darwin*)
+        INSTALL_DIR="/usr/local/audio-processing-system"
+        ;;
+    *)
+        INSTALL_DIR="/opt/audio-processing-system"
+        ;;
+esac
+
 USER_NAME="${SUDO_USER:-$USER}"
 
 # 颜色定义
@@ -433,10 +600,29 @@ log_error() {
 
 # 检查权限
 check_permissions() {
-    if [[ $EUID -ne 0 ]]; then
-        log_error "请使用sudo运行此脚本"
-        exit 1
-    fi
+    # 检测操作系统
+    case "$(uname -s)" in
+        Darwin*)
+            # macOS系统，不强制要求root权限
+            if [[ $EUID -eq 0 ]]; then
+                log_warning "检测到root权限，建议使用普通用户运行"
+                log_warning "macOS系统通常不需要root权限进行安装"
+            fi
+            ;;
+        Linux*)
+            # Linux系统，需要root权限
+            if [[ $EUID -ne 0 ]]; then
+                log_error "Linux系统需要root权限，请使用sudo运行此脚本"
+                exit 1
+            fi
+            ;;
+        *)
+            # 其他系统，给出提示但不强制退出
+            if [[ $EUID -ne 0 ]]; then
+                log_warning "当前不是root用户，某些操作可能需要管理员权限"
+            fi
+            ;;
+    esac
 }
 
 # 检测架构
@@ -465,10 +651,52 @@ detect_architecture() {
 install_system_dependencies() {
     log_info "安装系统依赖..."
     
-    if [[ -f "$SCRIPT_DIR/scripts/install_system_deps.sh" ]]; then
-        bash "$SCRIPT_DIR/scripts/install_system_deps.sh"
+    # 检测操作系统类型
+    case "$(uname -s)" in
+        Darwin*)
+            log_info "检测到macOS系统"
+            log_warning "macOS系统依赖需要手动安装，跳过自动安装步骤"
+            log_info "请参考以下命令手动安装依赖："
+            log_info "1. 安装Homebrew: /bin/bash -c \\"\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\\""
+            log_info "2. 安装依赖: brew install portaudio libsndfile fftw ffmpeg python@3.10"
+            log_info "3. 安装开发工具: xcode-select --install"
+            return 0
+            ;;
+        CYGWIN*|MINGW*|MSYS*)
+            log_info "检测到Windows系统"
+            log_warning "Windows系统依赖需要手动安装，跳过自动安装步骤"
+            log_info "请参考项目文档安装相应的开发工具和库"
+            return 0
+            ;;
+    esac
+    
+    # Linux系统继续原有逻辑
+    # 查找系统依赖安装脚本
+    SYSTEM_DEPS_SCRIPT=""
+    
+    # 可能的脚本位置
+    POSSIBLE_PATHS=(
+        "$SCRIPT_DIR/scripts/install_system_deps.sh"
+        "$SCRIPT_DIR/install_system_deps.sh"
+        "$(dirname "$0")/install_system_deps.sh"
+        "./scripts/install_system_deps.sh"
+        "./install_system_deps.sh"
+    )
+    
+    for path in "${POSSIBLE_PATHS[@]}"; do
+        if [[ -f "$path" ]]; then
+            SYSTEM_DEPS_SCRIPT="$path"
+            break
+        fi
+    done
+    
+    if [[ -n "$SYSTEM_DEPS_SCRIPT" ]]; then
+        log_info "找到系统依赖安装脚本: $SYSTEM_DEPS_SCRIPT"
+        bash "$SYSTEM_DEPS_SCRIPT"
     else
-        log_warning "未找到系统依赖安装脚本，请手动安装"
+        log_warning "未找到系统依赖安装脚本，请手动安装以下依赖："
+        log_warning "Ubuntu/Debian: sudo apt-get install python3-dev portaudio19-dev libasound2-dev libsndfile1-dev libfftw3-dev ffmpeg gcc g++ make pkg-config"
+        log_warning "CentOS/RHEL: sudo yum install python3-devel portaudio-devel alsa-lib-devel libsndfile-devel fftw-devel ffmpeg gcc gcc-c++ make pkgconfig"
     fi
 }
 
@@ -478,13 +706,34 @@ create_directories() {
     
     mkdir -p "$INSTALL_DIR"
     mkdir -p "$INSTALL_DIR"/{config,logs,recordings,plugins,backups}
-    mkdir -p /var/lib/audio-processing
-    mkdir -p /var/run/audio-processing
+    
+    # 根据操作系统创建不同的数据目录
+    case "$(uname -s)" in
+        Darwin*)
+            # macOS使用用户目录
+            mkdir -p "$HOME/Library/Application Support/audio-processing"
+            mkdir -p "/tmp/audio-processing"
+            DATA_DIR="$HOME/Library/Application Support/audio-processing"
+            RUN_DIR="/tmp/audio-processing"
+            ;;
+        *)
+            # Linux使用系统目录
+            mkdir -p /var/lib/audio-processing
+            mkdir -p /var/run/audio-processing
+            DATA_DIR="/var/lib/audio-processing"
+            RUN_DIR="/var/run/audio-processing"
+            ;;
+    esac
     
     # 设置权限
-    chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR"
-    chown -R "$USER_NAME:$USER_NAME" /var/lib/audio-processing
-    chown -R "$USER_NAME:$USER_NAME" /var/run/audio-processing
+    if [[ "$(uname -s)" == "Linux" ]] && [[ $EUID -eq 0 ]]; then
+        chown -R "$USER_NAME:$USER_NAME" "$INSTALL_DIR"
+        chown -R "$USER_NAME:$USER_NAME" "$DATA_DIR"
+        chown -R "$USER_NAME:$USER_NAME" "$RUN_DIR"
+    else
+        # 非Linux系统或非root用户，使用当前用户权限
+        chmod -R 755 "$INSTALL_DIR"
+    fi
 }
 
 # 安装Python环境
@@ -492,20 +741,73 @@ install_python_environment() {
     log_info "创建Python虚拟环境..."
     
     cd "$INSTALL_DIR"
-    sudo -u "$USER_NAME" python3 -m venv venv
+    
+    # 根据系统和权限情况创建虚拟环境
+    if [[ "$(uname -s)" == "Linux" ]] && [[ $EUID -eq 0 ]]; then
+        sudo -u "$USER_NAME" python3 -m venv venv
+    else
+        python3 -m venv venv
+    fi
     
     # 激活虚拟环境并安装离线包
     source venv/bin/activate
     
+    log_info "升级pip和基础工具..."
+    pip install --upgrade pip setuptools wheel
+    
     log_info "安装Python离线包..."
     
-    # 安装离线包
-    PYTHON_PACKAGES_DIR="$SCRIPT_DIR/python_packages/$ARCH"
-    if [[ -d "$PYTHON_PACKAGES_DIR" ]]; then
-        pip install --no-index --find-links "$PYTHON_PACKAGES_DIR" \\
-            --requirement "$SCRIPT_DIR/requirements.txt"
+    # 查找Python包目录
+    PYTHON_PACKAGES_DIR=""
+    POSSIBLE_PACKAGE_DIRS=(
+        "$SCRIPT_DIR/python_packages/$ARCH"
+        "$SCRIPT_DIR/python_packages"
+        "$(dirname "$0")/python_packages/$ARCH"
+        "$(dirname "$0")/python_packages"
+        "./python_packages/$ARCH"
+        "./python_packages"
+    )
+    
+    for dir in "${POSSIBLE_PACKAGE_DIRS[@]}"; do
+        if [[ -d "$dir" ]]; then
+            PYTHON_PACKAGES_DIR="$dir"
+            break
+        fi
+    done
+    
+    if [[ -n "$PYTHON_PACKAGES_DIR" ]]; then
+        log_info "找到Python包目录: $PYTHON_PACKAGES_DIR"
+        
+        # 查找requirements文件
+        REQUIREMENTS_FILE=""
+        POSSIBLE_REQ_FILES=(
+            "$SCRIPT_DIR/requirements.txt"
+            "$(dirname "$0")/requirements.txt"
+            "./requirements.txt"
+        )
+        
+        for req_file in "${POSSIBLE_REQ_FILES[@]}"; do
+            if [[ -f "$req_file" ]]; then
+                REQUIREMENTS_FILE="$req_file"
+                break
+            fi
+        done
+        
+        if [[ -n "$REQUIREMENTS_FILE" ]]; then
+            log_info "使用requirements文件: $REQUIREMENTS_FILE"
+            pip install --no-index --find-links "$PYTHON_PACKAGES_DIR" \\
+                --requirement "$REQUIREMENTS_FILE"
+        else
+            log_info "未找到requirements文件，安装目录中的所有包..."
+            pip install --no-index --find-links "$PYTHON_PACKAGES_DIR" \\
+                "$PYTHON_PACKAGES_DIR"/*.whl "$PYTHON_PACKAGES_DIR"/*.tar.gz 2>/dev/null || true
+        fi
     else
         log_error "未找到架构 $ARCH 的Python包目录"
+        log_error "可能的目录位置:"
+        for dir in "${POSSIBLE_PACKAGE_DIRS[@]}"; do
+            log_error "  - $dir"
+        done
         exit 1
     fi
 }
@@ -534,12 +836,27 @@ copy_application() {
 configure_services() {
     log_info "配置系统服务..."
     
-    # 复制服务配置文件
-    if [[ -f "$SCRIPT_DIR/systemd/audio-processing.service" ]]; then
-        cp "$SCRIPT_DIR/systemd/audio-processing.service" /etc/systemd/system/
-        systemctl daemon-reload
-        systemctl enable audio-processing
-    fi
+    case "$(uname -s)" in
+        Darwin*)
+            log_info "macOS系统，跳过systemd服务配置"
+            log_info "可以手动启动服务："
+            log_info "cd $INSTALL_DIR && source venv/bin/activate && python3 src/main.py"
+            ;;
+        Linux*)
+            # 复制服务配置文件
+            if [[ -f "$SCRIPT_DIR/systemd/audio-processing.service" ]]; then
+                cp "$SCRIPT_DIR/systemd/audio-processing.service" /etc/systemd/system/
+                systemctl daemon-reload
+                systemctl enable audio-processing
+                log_info "systemd服务已配置"
+            else
+                log_warning "未找到systemd服务配置文件"
+            fi
+            ;;
+        *)
+            log_info "非Linux系统，跳过systemd服务配置"
+            ;;
+    esac
 }
 
 # 验证安装
@@ -837,9 +1154,21 @@ def main():
     
     packager = OfflinePackager(args.output)
     
+    # 如果未指定架构，使用当前架构
+    if not args.architectures:
+        _, current_arch = packager.detect_platform()
+        args.architectures = [current_arch]
+        logger.info(f"未指定架构，使用当前架构: {current_arch}")
+    
     try:
         package_path = packager.build_offline_package(args.architectures)
         print(f"\n✓ 离线包构建成功: {package_path}")
+        
+        # 显示包信息
+        package_size = Path(package_path).stat().st_size / 1024 / 1024
+        print(f"包大小: {package_size:.1f} MB")
+        print(f"支持架构: {', '.join(args.architectures)}")
+        
         print("\n使用方法:")
         print(f"1. 将 {Path(package_path).name} 传输到目标设备")
         print("2. 解压: tar -xzf audio-processing-system-offline-*.tar.gz")
