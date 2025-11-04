@@ -29,7 +29,7 @@ class MockServiceManager:
             "SSLService": {"running": True, "healthy": True},
             "AECService": {"running": False, "healthy": False},
             "AGCService": {"running": True, "healthy": True},
-            "BeamformingService": {"running": True, "healthy": True}
+            "BeamformerService": {"running": True, "healthy": True}
         }
     
     def get_service_status(self):
