@@ -63,18 +63,18 @@ Examples:
     print("=" * 50)
     
     if args.mode == 'web':
-        print("🚀 Starting Web Interface Demo...")
+        print("🚀 Starting Real Audio Processing System...")
         print(f"📱 Will be available at: http://{args.host}:{args.port}")
         print("=" * 50)
         
-        # Import and run web demo
-        from demo_web_interface import main as web_main
+        # Import and run the real audio processing system
+        from audio_system import main as audio_main
         try:
-            asyncio.run(web_main())
+            asyncio.run(audio_main())
         except KeyboardInterrupt:
-            print("\n✅ Web demo stopped by user")
+            print("\n✅ Audio system stopped by user")
         except Exception as e:
-            print(f"❌ Web demo failed: {e}")
+            print(f"❌ Audio system failed: {e}")
             sys.exit(1)
     
     elif args.mode == 'test':
