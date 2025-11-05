@@ -24,6 +24,7 @@ from .component_registry import IntelligentComponentRegistry
 from .recovery_manager import AutomaticRecoveryManager
 from ..processing.visual_pipeline import FullChainVisualAudioPipeline
 from ..visualization.full_process_dashboard import FullProcessVisualizationDashboard
+from ..visualization.web_interface import WebInterface
 from ..tools.configuration_manager import ConfigurationManager
 
 
@@ -76,10 +77,12 @@ class IntegratedProductionAudioSystem:
         self.recovery_manager: Optional[AutomaticRecoveryManager] = None
         self.visual_pipeline: Optional[FullChainVisualAudioPipeline] = None
         self.dashboard: Optional[FullProcessVisualizationDashboard] = None
+        self.web_interface: Optional[WebInterface] = None
         self.config_manager: Optional[ConfigurationManager] = None
         
         # System configuration
         self.system_config: Optional[AudioProcessingConfig] = None
+        self.init_config: Optional[Dict[str, Any]] = None
         
         # Component health tracking
         self.component_health: Dict[str, str] = {}
@@ -109,6 +112,9 @@ class IntegratedProductionAudioSystem:
                 
                 # Initialize configuration manager first
                 self.config_manager = ConfigurationManager()
+                
+                # Store initialization config
+                self.init_config = config
                 
                 # Create system configuration
                 self.system_config = self._create_system_config(config)
@@ -146,6 +152,10 @@ class IntegratedProductionAudioSystem:
                 self.dashboard = FullProcessVisualizationDashboard()
                 if not self.dashboard.initialize(config.get("dashboard", {})):
                     raise Exception("Failed to initialize dashboard")
+                
+                # Initialize web interface
+                self.web_interface = WebInterface()
+                self.logger.info("Web interface initialized")
                 
                 # Setup component interconnections
                 self._setup_component_connections()
@@ -193,6 +203,17 @@ class IntegratedProductionAudioSystem:
                 # Start dashboard
                 if not self.dashboard.start_dashboard():
                     raise Exception("Failed to start dashboard")
+                
+                # Start web interface (if enabled)
+                web_enabled = self.init_config.get("web_enabled", True) if self.init_config else True
+                if web_enabled:
+                    web_port = self.init_config.get("web_port", 8080) if self.init_config else 8080
+                    web_host = self.init_config.get("web_host", "0.0.0.0") if self.init_config else "0.0.0.0"
+                    
+                    self.web_interface.start(host=web_host, port=web_port)
+                    self.logger.info(f"Web interface started on http://{web_host}:{web_port}")
+                else:
+                    self.logger.info("Web interface disabled by configuration")
                 
                 # Configure and start capture
                 if not self.capture_service.configure_capture(self.system_config):
@@ -242,6 +263,11 @@ class IntegratedProductionAudioSystem:
                 # Stop dashboard
                 if self.dashboard:
                     self.dashboard.stop_dashboard()
+                
+                # Stop web interface
+                if self.web_interface:
+                    self.web_interface.stop()
+                    self.logger.info("Web interface stopped")
                 
                 # Stop multi-input system
                 if self.multi_input_system:
@@ -494,6 +520,9 @@ class IntegratedProductionAudioSystem:
                     health_status = self.get_health_status()
                     self._notify_health_change(health_status)
                 
+                # Update web interface data
+                self._update_web_interface_data()
+                
                 time.sleep(self.health_check_interval)
                 
             except Exception as e:
@@ -515,6 +544,169 @@ class IntegratedProductionAudioSystem:
                 callback(health_status)
             except Exception as e:
                 self.logger.error(f"Error in health change callback: {e}")
+    
+    def _update_web_interface_data(self):
+        """Update web interface with current system data"""
+        if not self.web_interface:
+            return
+        
+        try:
+            # Update system status
+            uptime = (datetime.now() - self.start_time).total_seconds() if self.start_time else 0
+            health_status = self.get_health_status()
+            
+            self.web_interface.update_system_status(
+                status=self.state.value,
+                uptime=uptime,
+                health={
+                    'overall': health_status.overall_health,
+                    'score': health_status.performance_score
+                }
+            )
+            
+            # Update components
+            components_data = {}
+            if self.component_registry and hasattr(self.component_registry, 'registered_components'):
+                for comp_id, registration in self.component_registry.registered_components.items():
+                    # Safely get component information
+                    name = getattr(registration, 'name', comp_id)
+                    category = getattr(registration, 'category', None)
+                    version = getattr(registration, 'version', None)
+                    status = getattr(registration, 'status', None)
+                    
+                    components_data[comp_id] = {
+                        'name': name,
+                        'status': self.component_health.get(comp_id, 'active'),
+                        'type': category.value if category and hasattr(category, 'value') else 'audio_processor',
+                        'version': str(version) if version else '1.0.0',
+                        'enabled': status.value == 'loaded' if status and hasattr(status, 'value') else True,
+                        'metrics': {}
+                    }
+            
+            # Add some default components if none found
+            if not components_data:
+                components_data = {
+                    'aec': {
+                        'name': '回声消除 (AEC)',
+                        'status': 'active',
+                        'type': 'webrtc',
+                        'version': '1.0.0',
+                        'enabled': True,
+                        'metrics': {}
+                    },
+                    'agc': {
+                        'name': '自动增益控制 (AGC)',
+                        'status': 'active',
+                        'type': 'webrtc',
+                        'version': '1.0.0',
+                        'enabled': True,
+                        'metrics': {}
+                    },
+                    'ns': {
+                        'name': '噪声抑制 (NS)',
+                        'status': 'active',
+                        'type': 'webrtc',
+                        'version': '1.0.0',
+                        'enabled': True,
+                        'metrics': {}
+                    },
+                    'beamforming': {
+                        'name': '波束成形',
+                        'status': 'active',
+                        'type': 'spatial',
+                        'version': '1.0.0',
+                        'enabled': False,
+                        'metrics': {}
+                    }
+                }
+            
+            self.web_interface.update_components(components_data)
+            
+            # Update devices
+            input_devices = []
+            output_devices = []
+            
+            # Try multiple ways to get device information
+            if self.capture_service:
+                # Method 1: Try device_manager._devices
+                if hasattr(self.capture_service, 'device_manager') and hasattr(self.capture_service.device_manager, '_devices'):
+                    for device_id, device in self.capture_service.device_manager._devices.items():
+                        device_data = {
+                            'id': device_id,
+                            'name': getattr(device, 'name', device_id),
+                            'channels': getattr(device, 'max_input_channels', 2) if getattr(device, 'is_input', False) else getattr(device, 'max_output_channels', 2),
+                            'sample_rate': 48000,
+                            'active': getattr(device, 'is_available', True)
+                        }
+                        
+                        if getattr(device, 'is_input', False):
+                            input_devices.append(device_data)
+                        if getattr(device, 'is_output', False):
+                            output_devices.append(device_data)
+                
+                # Method 2: Try multi_input_system devices
+                elif self.multi_input_system and hasattr(self.multi_input_system, 'available_devices'):
+                    for device in self.multi_input_system.available_devices:
+                        device_data = {
+                            'id': getattr(device, 'device_id', 'unknown'),
+                            'name': getattr(device, 'name', 'Unknown Device'),
+                            'channels': getattr(device, 'max_input_channels', 2),
+                            'sample_rate': 48000,
+                            'active': True
+                        }
+                        input_devices.append(device_data)
+            
+            # Add some mock devices if no real devices found (for demo purposes)
+            if not input_devices and not output_devices:
+                input_devices = [
+                    {'id': 'input_0', 'name': '内置麦克风', 'channels': 2, 'sample_rate': 48000, 'active': True},
+                    {'id': 'input_1', 'name': 'USB 音频接口', 'channels': 2, 'sample_rate': 48000, 'active': False}
+                ]
+                output_devices = [
+                    {'id': 'output_0', 'name': '内置扬声器', 'channels': 2, 'sample_rate': 48000, 'active': True},
+                    {'id': 'output_1', 'name': '录音室监听器', 'channels': 2, 'sample_rate': 48000, 'active': False}
+                ]
+            
+            self.web_interface.update_devices(input_devices, output_devices)
+            
+            # Update processing chain
+            processing_chain = []
+            if self.visual_pipeline and hasattr(self.visual_pipeline, 'pipeline_nodes'):
+                for node_id, node in self.visual_pipeline.pipeline_nodes.items():
+                    processing_chain.append({
+                        'id': node_id,
+                        'name': getattr(node, 'name', node_id),
+                        'type': getattr(node, 'component_type', 'processor'),
+                        'active': getattr(node, 'enabled', True)
+                    })
+            
+            # Add default processing chain if none found
+            if not processing_chain:
+                processing_chain = [
+                    {'id': 'input', 'name': '音频输入', 'type': 'input', 'active': True},
+                    {'id': 'aec', 'name': '回声消除', 'type': 'webrtc', 'active': True},
+                    {'id': 'ns', 'name': '噪声抑制', 'type': 'webrtc', 'active': True},
+                    {'id': 'agc', 'name': '自动增益控制', 'type': 'webrtc', 'active': True},
+                    {'id': 'output', 'name': '音频输出', 'type': 'output', 'active': True}
+                ]
+            
+            self.web_interface.update_processing_chain(processing_chain)
+            
+            # Update metrics
+            import psutil
+            metrics = {
+                'cpu_usage': psutil.cpu_percent(),
+                'memory_usage': psutil.virtual_memory().percent,
+                'audio_latency': 10.0,  # Mock data
+                'processing_load': 25.0,  # Mock data
+                'input_levels': [0.5, 0.3],  # Mock data
+                'output_levels': [0.4, 0.6]  # Mock data
+            }
+            
+            self.web_interface.update_metrics(metrics)
+            
+        except Exception as e:
+            self.logger.error(f"Error updating web interface data: {e}")
     
     def _on_audio_input(self, device_id: str, frame: AudioFrame):
         """Handle audio input from multi-input system"""

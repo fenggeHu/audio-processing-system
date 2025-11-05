@@ -1,1 +1,50 @@
-{}
+{
+  "input_0": {
+    "device_id": "input_0",
+    "enabled": true,
+    "sample_rate": 48000,
+    "bit_depth": 24,
+    "channels": 2,
+    "buffer_size": 256,
+    "gain_db": 0.0,
+    "muted": false,
+    "priority": 0,
+    "custom_settings": {}
+  },
+  "input_1": {
+    "device_id": "input_1",
+    "enabled": true,
+    "sample_rate": 48000,
+    "bit_depth": 24,
+    "channels": 2,
+    "buffer_size": 256,
+    "gain_db": 0.0,
+    "muted": false,
+    "priority": 0,
+    "custom_settings": {}
+  },
+  "output_0": {
+    "device_id": "output_0",
+    "enabled": true,
+    "sample_rate": 48000,
+    "bit_depth": 24,
+    "channels": 2,
+    "buffer_size": 256,
+    "gain_db": 0.0,
+    "muted": false,
+    "priority": 0,
+    "custom_settings": {}
+  },
+  "output_1": {
+    "device_id": "output_1",
+    "enabled": true,
+    "sample_rate": 48000,
+    "bit_depth": 24,
+    "channels": 2,
+    "buffer_size": 256,
+    "gain_db": 0.0,
+    "muted": false,
+    "priority": 0,
+    "custom_settings": {}
+  }
+}

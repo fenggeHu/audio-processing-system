@@ -157,7 +157,7 @@ cython_debug/
 #  be added to the global gitignore or merged into this project gitignore.  For a PyCharm
 #  project, it is recommended to include the directory-based project format:
 .idea/
-
+.vscode/
 .kiro/
 
 # Audio files

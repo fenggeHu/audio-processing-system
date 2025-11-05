@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生产级音频处理系统 - 监控面板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e1e8ed;
+        }
+        
+        .card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-running { background: #27ae60; }
+        .status-stopped { background: #e74c3c; }
+        .status-warning { background: #f39c12; }
+        .status-unknown { background: #95a5a6; }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .component-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .component-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .component-name {
+            font-weight: 500;
+        }
+        
+        .component-status {
+            font-size: 0.9rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .status-active { background: #27ae60; }
+        .status-inactive { background: #95a5a6; }
+        .status-error { background: #e74c3c; }
+        
+        .device-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .device-item {
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .device-active {
+            border-left: 4px solid #27ae60;
+        }
+        
+        .device-inactive {
+            border-left: 4px solid #95a5a6;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s ease;
+        }
+        
+        .refresh-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+        
+        .log-container {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+        }
+        
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding: 0.25rem;
+        }
+        
+        .log-info { color: #3498db; }
+        .log-warning { color: #f39c12; }
+        .log-error { color: #e74c3c; }
+        
+        .auto-refresh {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(52, 152, 219, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 生产级音频处理系统 - 监控面板</h1>
+    </div>
+    
+    <div class="auto-refresh" id="autoRefresh">
+        自动刷新: <span id="refreshTimer">5</span>s
+    </div>
+    
+    <div class="container">
+        <div class="dashboard-grid">
+            <!-- 系统状态 -->
+            <div class="card">
+                <h2>🖥️ 系统状态</h2>
+                <div class="metric">
+                    <span class="metric-label">运行状态</span>
+                    <span class="metric-value">
+                        <span class="status-indicator" id="systemStatusIndicator"></span>
+                        <span id="systemStatus">加载中...</span>
+                    </span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">运行时间</span>
+                    <span class="metric-value" id="systemUptime">0s</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">健康评分</span>
+                    <span class="metric-value" id="healthScore">0%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">最后更新</span>
+                    <span class="metric-value" id="lastUpdate">--</span>
+                </div>
+            </div>
+            
+            <!-- 性能指标 -->
+            <div class="card">
+                <h2>📊 性能指标</h2>
+                <div class="metric">
+                    <span class="metric-label">CPU 使用率</span>
+                    <span class="metric-value" id="cpuUsage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cpuProgress" style="width: 0%"></div>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">内存使用率</span>
+                    <span class="metric-value" id="memoryUsage">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="memoryProgress" style="width: 0%"></div>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">音频延迟</span>
+                    <span class="metric-value" id="audioLatency">0ms</span>
+                </div>
+                
+                <div class="metric">
+                    <span class="metric-label">处理负载</span>
+                    <span class="metric-value" id="processingLoad">0%</span>
+                </div>
+            </div>
+            
+            <!-- 音频处理组件 -->
+            <div class="card">
+                <h2>🔧 音频处理组件</h2>
+                <button class="refresh-btn" onclick="refreshComponents()">刷新组件</button>
+                <div class="component-list" id="componentList">
+                    <div class="component-item">
+                        <span class="component-name">加载中...</span>
+                        <span class="component-status status-inactive">未知</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 音频设备 -->
+            <div class="card">
+                <h2>🎤 音频设备</h2>
+                <h3 style="font-size: 1rem; margin: 1rem 0 0.5rem 0; color: #27ae60;">输入设备</h3>
+                <div class="device-list" id="inputDevices">
+                    <div class="device-item">加载中...</div>
+                </div>
+                
+                <h3 style="font-size: 1rem; margin: 1rem 0 0.5rem 0; color: #3498db;">输出设备</h3>
+                <div class="device-list" id="outputDevices">
+                    <div class="device-item">加载中...</div>
+                </div>
+            </div>
+            
+            <!-- 处理链路 -->
+            <div class="card">
+                <h2>🔗 处理链路</h2>
+                <div class="metric">
+                    <span class="metric-label">总组件数</span>
+                    <span class="metric-value" id="totalChainComponents">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">活跃组件</span>
+                    <span class="metric-value" id="activeChainComponents">0</span>
+                </div>
+                <div class="component-list" id="processingChain">
+                    <div class="component-item">
+                        <span class="component-name">加载中...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 系统日志 -->
+            <div class="card">
+                <h2>📝 系统日志</h2>
+                <button class="refresh-btn" onclick="refreshLogs()">刷新日志</button>
+                <div class="log-container" id="systemLogs">
+                    <div class="log-entry log-info">系统启动中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let refreshTimer = 5;
+        let refreshInterval;
+        
+        // 自动刷新计时器
+        function startRefreshTimer() {
+            refreshInterval = setInterval(() => {
+                refreshTimer--;
+                document.getElementById('refreshTimer').textContent = refreshTimer;
+                
+                if (refreshTimer <= 0) {
+                    refreshAllData();
+                    refreshTimer = 5;
+                }
+            }, 1000);
+        }
+        
+        // 刷新所有数据
+        async function refreshAllData() {
+            try {
+                await Promise.all([
+                    refreshSystemStatus(),
+                    refreshMetrics(),
+                    refreshComponents(),
+                    refreshDevices(),
+                    refreshProcessingChain()
+                ]);
+            } catch (error) {
+                console.error('刷新数据失败:', error);
+            }
+        }
+        
+        // 刷新系统状态
+        async function refreshSystemStatus() {
+            try {
+                const response = await fetch('/api/system/status');
+                const data = await response.json();
+                
+                document.getElementById('systemStatus').textContent = data.status;
+                document.getElementById('systemUptime').textContent = formatUptime(data.uptime);
+                document.getElementById('healthScore').textContent = Math.round(data.health.score * 100) + '%';
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                
+                // 更新状态指示器
+                const indicator = document.getElementById('systemStatusIndicator');
+                indicator.className = 'status-indicator status-' + (data.status === 'running' ? 'running' : 'unknown');
+                
+            } catch (error) {
+                console.error('获取系统状态失败:', error);
+            }
+        }
+        
+        // 刷新性能指标
+        async function refreshMetrics() {
+            try {
+                const response = await fetch('/api/metrics');
+                const data = await response.json();
+                
+                document.getElementById('cpuUsage').textContent = Math.round(data.cpu_usage) + '%';
+                document.getElementById('cpuProgress').style.width = data.cpu_usage + '%';
+                
+                document.getElementById('memoryUsage').textContent = Math.round(data.memory_usage) + '%';
+                document.getElementById('memoryProgress').style.width = data.memory_usage + '%';
+                
+                document.getElementById('audioLatency').textContent = Math.round(data.audio_latency) + 'ms';
+                document.getElementById('processingLoad').textContent = Math.round(data.processing_load) + '%';
+                
+            } catch (error) {
+                console.error('获取性能指标失败:', error);
+            }
+        }
+        
+        // 刷新组件状态
+        async function refreshComponents() {
+            try {
+                const response = await fetch('/api/components');
+                const data = await response.json();
+                
+                const container = document.getElementById('componentList');
+                container.innerHTML = '';
+                
+                if (data.components.length === 0) {
+                    container.innerHTML = '<div class="component-item"><span class="component-name">暂无组件</span></div>';
+                    return;
+                }
+                
+                data.components.forEach(component => {
+                    const item = document.createElement('div');
+                    item.className = 'component-item';
+                    
+                    const statusClass = component.enabled ? 'status-active' : 'status-inactive';
+                    const statusText = component.enabled ? '活跃' : '未激活';
+                    
+                    item.innerHTML = `
+                        <div>
+                            <div class="component-name">${component.name}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${component.type} v${component.version}</div>
+                        </div>
+                        <span class="component-status ${statusClass}">${statusText}</span>
+                    `;
+                    
+                    container.appendChild(item);
+                });
+                
+            } catch (error) {
+                console.error('获取组件状态失败:', error);
+            }
+        }
+        
+        // 刷新设备信息
+        async function refreshDevices() {
+            try {
+                const response = await fetch('/api/devices');
+                const data = await response.json();
+                
+                // 输入设备
+                const inputContainer = document.getElementById('inputDevices');
+                inputContainer.innerHTML = '';
+                
+                if (data.input_devices.length === 0) {
+                    inputContainer.innerHTML = '<div class="device-item">暂无输入设备</div>';
+                } else {
+                    data.input_devices.forEach(device => {
+                        const item = document.createElement('div');
+                        item.className = 'device-item ' + (device.active ? 'device-active' : 'device-inactive');
+                        item.innerHTML = `
+                            <div><strong>${device.name || device.id}</strong></div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                ${device.channels || 2} 通道 | ${device.sample_rate || 48000} Hz
+                                ${device.active ? ' | 🟢 活跃' : ' | ⚪ 未激活'}
+                            </div>
+                        `;
+                        inputContainer.appendChild(item);
+                    });
+                }
+                
+                // 输出设备
+                const outputContainer = document.getElementById('outputDevices');
+                outputContainer.innerHTML = '';
+                
+                if (data.output_devices.length === 0) {
+                    outputContainer.innerHTML = '<div class="device-item">暂无输出设备</div>';
+                } else {
+                    data.output_devices.forEach(device => {
+                        const item = document.createElement('div');
+                        item.className = 'device-item ' + (device.active ? 'device-active' : 'device-inactive');
+                        item.innerHTML = `
+                            <div><strong>${device.name || device.id}</strong></div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                ${device.channels || 2} 通道 | ${device.sample_rate || 48000} Hz
+                                ${device.active ? ' | 🟢 活跃' : ' | ⚪ 未激活'}
+                            </div>
+                        `;
+                        outputContainer.appendChild(item);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('获取设备信息失败:', error);
+            }
+        }
+        
+        // 刷新处理链路
+        async function refreshProcessingChain() {
+            try {
+                const response = await fetch('/api/processing-chain');
+                const data = await response.json();
+                
+                document.getElementById('totalChainComponents').textContent = data.total_components;
+                document.getElementById('activeChainComponents').textContent = data.active_components;
+                
+                const container = document.getElementById('processingChain');
+                container.innerHTML = '';
+                
+                if (data.chain.length === 0) {
+                    container.innerHTML = '<div class="component-item"><span class="component-name">暂无处理链路</span></div>';
+                    return;
+                }
+                
+                data.chain.forEach((component, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'component-item';
+                    
+                    item.innerHTML = `
+                        <div>
+                            <div class="component-name">${index + 1}. ${component.name || component.id}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${component.type || 'Unknown'}</div>
+                        </div>
+                        <span class="component-status ${component.active ? 'status-active' : 'status-inactive'}">
+                            ${component.active ? '运行中' : '停止'}
+                        </span>
+                    `;
+                    
+                    container.appendChild(item);
+                });
+                
+            } catch (error) {
+                console.error('获取处理链路失败:', error);
+            }
+        }
+        
+        // 刷新日志
+        async function refreshLogs() {
+            try {
+                const response = await fetch('/api/logs');
+                const data = await response.json();
+                
+                const container = document.getElementById('systemLogs');
+                container.innerHTML = '';
+                
+                data.logs.forEach(log => {
+                    const entry = document.createElement('div');
+                    entry.className = 'log-entry log-' + log.level.toLowerCase();
+                    entry.innerHTML = `[${new Date(log.timestamp).toLocaleTimeString()}] ${log.level}: ${log.message}`;
+                    container.appendChild(entry);
+                });
+                
+                // 滚动到底部
+                container.scrollTop = container.scrollHeight;
+                
+            } catch (error) {
+                console.error('获取日志失败:', error);
+            }
+        }
+        
+        // 格式化运行时间
+        function formatUptime(seconds) {
+            if (seconds < 60) return Math.round(seconds) + 's';
+            if (seconds < 3600) return Math.round(seconds / 60) + 'm';
+            return Math.round(seconds / 3600) + 'h';
+        }
+        
+        // 页面加载完成后开始刷新
+        document.addEventListener('DOMContentLoaded', function() {
+            refreshAllData();
+            startRefreshTimer();
+        });
+    </script>
+</body>
+</html>

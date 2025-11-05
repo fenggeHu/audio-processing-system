@@ -2,6 +2,12 @@
 
 A production-grade audio processing system designed for multimedia classroom environments with real-time audio processing capabilities.
 
+## 📚 文档导航
+
+- **[STARTUP_GUIDE.md](STARTUP_GUIDE.md)** - 系统启动指南，包含两种启动方式的详细说明
+- **[WEB_INTERFACE_GUIDE.md](WEB_INTERFACE_GUIDE.md)** - Web界面完整指南，功能说明和使用方法
+- **[README.md](README.md)** - 项目概述、安装和基本使用说明 (本文档)
+
 ## Features
 
 - **Real Hardware Audio Processing**: Removes all mock/test code, uses actual hardware via PortAudio

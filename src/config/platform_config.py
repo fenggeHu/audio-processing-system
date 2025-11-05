@@ -303,11 +303,12 @@ class PlatformConfigManager:
     
     def _apply_macos_optimizations(self) -> None:
         """Apply macOS-specific optimizations."""
-        # Prevent system sleep
+        # Prevent system sleep (run in background, don't block)
         if self.config.platform_settings.get("prevent_system_sleep"):
             try:
                 import subprocess
-                subprocess.run(["caffeinate", "-i"], check=False)
+                # Use Popen to start in background without blocking
+                subprocess.Popen(["caffeinate", "-i"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             except (OSError, subprocess.SubprocessError):
                 pass
     

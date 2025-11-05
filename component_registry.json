@@ -14,8 +14,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.690482",
-    "last_update": "2025-11-05 09:37:09.690483",
+    "registration_time": "2025-11-05 11:35:54.865149",
+    "last_update": "2025-11-05 11:35:54.865149",
     "performance_profile": {}
   },
   "src.audio_core.component_registry.AGCComponent": {
@@ -33,8 +33,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.690827",
-    "last_update": "2025-11-05 09:37:09.690828",
+    "registration_time": "2025-11-05 11:35:54.865509",
+    "last_update": "2025-11-05 11:35:54.865510",
     "performance_profile": {}
   },
   "src.audio_core.component_registry.NSComponent": {
@@ -52,8 +52,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.691242",
-    "last_update": "2025-11-05 09:37:09.691244",
+    "registration_time": "2025-11-05 11:35:54.865781",
+    "last_update": "2025-11-05 11:35:54.865781",
     "performance_profile": {}
   },
   "src.audio_core.component_registry.BeamformingComponent": {
@@ -71,8 +71,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.691580",
-    "last_update": "2025-11-05 09:37:09.691581",
+    "registration_time": "2025-11-05 11:35:54.866046",
+    "last_update": "2025-11-05 11:35:54.866046",
     "performance_profile": {}
   },
   "src.audio_core.component_registry.SourceLocalizationComponent": {
@@ -90,8 +90,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.691951",
-    "last_update": "2025-11-05 09:37:09.691952",
+    "registration_time": "2025-11-05 11:35:54.866380",
+    "last_update": "2025-11-05 11:35:54.866381",
     "performance_profile": {}
   },
   "src.audio_core.component_registry.SpatialFilterComponent": {
@@ -109,8 +109,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.692325",
-    "last_update": "2025-11-05 09:37:09.692325",
+    "registration_time": "2025-11-05 11:35:54.866693",
+    "last_update": "2025-11-05 11:35:54.866694",
     "performance_profile": {}
   },
   "src.audio_core.component_registry.MultiChannelProcessorComponent": {
@@ -128,8 +128,8 @@
     "status": "ComponentStatus.AVAILABLE",
     "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
     "checksum": "6a43c09341e544d5b41b148e7d28db82",
-    "registration_time": "2025-11-05 09:37:09.692741",
-    "last_update": "2025-11-05 09:37:09.692742",
+    "registration_time": "2025-11-05 11:35:54.867073",
+    "last_update": "2025-11-05 11:35:54.867073",
     "performance_profile": {}
   }
 }
