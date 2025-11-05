@@ -1,275 +1,233 @@
-# 音频处理系统部署指南
-# Audio Processing System Deployment Guide
+# Production Audio System - Deployment Guide
 
-## 概述
+This directory contains deployment configurations and scripts for different platforms and environments.
 
-本目录包含音频处理系统的完整部署解决方案，支持多种部署方式和环境配置。
-
-## 目录结构
+## Directory Structure
 
 ```
 deploy/
-├── README.md                    # 本文件
-├── install.sh                   # 自动安装脚本
-├── docker-compose.yml           # Docker容器编排
-├── maintenance_guide.md         # 系统维护和用户指南
-├── docker/                     # Docker相关文件
-│   └── Dockerfile              # 应用镜像
-├── nginx/                      # Nginx配置
-│   ├── nginx.conf              # 主配置文件
-│   └── conf.d/                 # 站点配置
-├── monitoring/                 # 监控配置
-│   ├── prometheus.yml          # Prometheus配置
-│   └── alert_rules.yml         # 告警规则
-
+├── linux/          # Linux production deployment
+│   ├── install.sh           # Automated installation script
+│   ├── optimize_system.sh   # System optimization for real-time audio
+│   ├── production-audio-system.service  # Systemd service
+│   ├── asound.conf          # ALSA configuration
+│   ├── production-audio-system.logrotate  # Log rotation
+│   └── README.md            # Linux deployment guide
+├── macos/          # macOS development environment
+│   ├── setup_dev.sh         # Development environment setup
+│   └── README.md            # macOS setup guide
+├── windows/        # Windows development environment
+│   ├── setup_dev.bat        # Development environment setup
+│   └── README.md            # Windows setup guide
+└── README.md       # This file
 ```
 
-## 快速开始
+## Platform Support
 
-### 方式1: 自动安装脚本 (推荐)
+### Linux (Production)
+- **Target**: Ubuntu 20.04+, CentOS 8+, RHEL 8+
+- **Purpose**: Production deployment with real-time audio processing
+- **Features**: 
+  - Systemd service integration
+  - ALSA optimization
+  - Real-time kernel configuration
+  - Security hardening
+  - Performance monitoring
+
+### macOS (Development)
+- **Target**: macOS 11+ (Big Sur and later)
+- **Purpose**: Development and testing environment
+- **Features**:
+  - CoreAudio integration
+  - Homebrew dependency management
+  - Xcode development tools
+  - VS Code/PyCharm integration
+
+### Windows (Development)
+- **Target**: Windows 10/11
+- **Purpose**: Development and testing environment
+- **Features**:
+  - WASAPI/DirectSound support
+  - Visual Studio integration
+  - PowerShell scripts
+  - Windows-specific optimizations
+
+## Quick Start
+
+### Linux Production Deployment
+```bash
+cd deploy/linux
+sudo ./install.sh
+sudo ./optimize_system.sh
+sudo reboot
+sudo systemctl start production-audio-system
+```
+
+### macOS Development Setup
+```bash
+cd deploy/macos
+./setup_dev.sh
+```
+
+### Windows Development Setup
+```cmd
+cd deploy\windows
+setup_dev.bat
+```
+
+## Cross-Platform Development
+
+Use the cross-platform build script for unified development workflow:
 
 ```bash
-# 下载并运行安装脚本
-curl -fsSL https://raw.githubusercontent.com/audio-processing-system/deploy/main/install.sh | bash
+# Setup environment for current platform
+python scripts/cross_platform_build.py setup
 
-# 或者本地运行
-chmod +x deploy/install.sh
-sudo deploy/install.sh
+# Run tests
+python scripts/cross_platform_build.py test
+
+# Start development server
+python scripts/cross_platform_build.py dev
+
+# Build package
+python scripts/cross_platform_build.py build
 ```
 
-### 方式2: Docker容器化部署
+## Configuration Management
+
+Each platform has its own configuration template:
+- `config/production_linux.yaml` - Linux production settings
+- `config/development_macos.yaml` - macOS development settings  
+- `config/development_windows.yaml` - Windows development settings
+
+## Development Tools
+
+Use the development tools script for IDE integration and utilities:
 
 ```bash
-# 克隆项目
-git clone https://github.com/audio-processing-system/audio-processing-system.git
-cd audio-processing-system
+# Generate VS Code configuration
+python scripts/dev_tools.py vscode
 
-# 启动所有服务
-docker-compose -f deploy/docker-compose.yml up -d
+# Generate PyCharm configuration
+python scripts/dev_tools.py pycharm
 
-# 检查服务状态
-docker-compose -f deploy/docker-compose.yml ps
+# Validate configuration
+python scripts/dev_tools.py validate --config development_linux.yaml
+
+# Check dependencies
+python scripts/dev_tools.py deps
 ```
 
+## Environment-Specific Features
 
+### Linux Production Features
+- **Real-time Audio**: Optimized kernel parameters and scheduling
+- **System Integration**: Systemd service with proper permissions
+- **Security**: Hardened service configuration with minimal privileges
+- **Monitoring**: Comprehensive logging and performance metrics
+- **Deployment**: Automated installation and configuration scripts
 
-## 部署环境
+### macOS Development Features
+- **Native Integration**: CoreAudio framework integration
+- **Development Tools**: Homebrew package management
+- **IDE Support**: Xcode, VS Code, and PyCharm configurations
+- **Testing**: Comprehensive test suite with audio device mocking
 
-### 系统要求
+### Windows Development Features
+- **Audio APIs**: WASAPI, DirectSound, and MME support
+- **Development Environment**: Visual Studio integration
+- **Package Management**: pip and conda compatibility
+- **Testing**: Windows-specific audio device testing
 
-**最低要求**:
-- CPU: 4核心 2.0GHz
-- 内存: 4GB RAM
-- 存储: 20GB 可用空间
-- 操作系统: Ubuntu 20.04+ / CentOS 8+ / Debian 11+
-- Python: 3.10+
+## Deployment Strategies
 
-**推荐配置**:
-- CPU: 8核心 3.0GHz
-- 内存: 8GB RAM
-- 存储: 50GB SSD
-- 网络: 千兆以太网
+### Production Deployment (Linux)
+1. **Automated Installation**: Use `install.sh` for complete setup
+2. **System Optimization**: Apply real-time optimizations with `optimize_system.sh`
+3. **Service Management**: Systemd integration with automatic startup
+4. **Monitoring**: Built-in performance monitoring and alerting
+5. **Updates**: Rolling updates with service restart
 
-### 支持的部署环境
+### Development Deployment (macOS/Windows)
+1. **Environment Setup**: Platform-specific setup scripts
+2. **IDE Integration**: Automatic configuration for popular IDEs
+3. **Testing**: Comprehensive test suite with mocking
+4. **Hot Reload**: Development server with automatic reloading
+5. **Debugging**: Integrated debugging and profiling tools
 
-1. **生产环境 (Production)**
-   - 高可用性配置
-   - 完整监控和告警
-   - 自动备份和恢复
-   - 安全加固
+## Security Considerations
 
-2. **预发布环境 (Staging)**
-   - 生产环境镜像
-   - 用于测试和验证
-   - 简化的监控配置
+### Linux Production Security
+- Service runs with minimal privileges
+- Restricted file system access
+- Network access controls
+- Security-hardened systemd configuration
+- Regular security updates
 
-3. **开发环境 (Development)**
-   - 轻量级配置
-   - 调试功能启用
-   - 快速迭代支持
+### Development Security
+- Local-only web interface binding
+- Development-only features disabled in production
+- Secure configuration templates
+- Dependency vulnerability scanning
 
-## 配置说明
+## Performance Optimization
 
-### 环境配置文件
+### Linux Production Performance
+- Real-time kernel scheduling
+- CPU isolation and affinity
+- Memory locking and huge pages
+- IRQ optimization
+- Audio device exclusive access
 
-系统使用统一的配置文件：
+### Development Performance
+- Relaxed latency requirements
+- Debug-friendly buffer sizes
+- Comprehensive profiling tools
+- Performance regression testing
 
-- `config/audio_system.json`: 主配置文件
-- `config/classroom_environments.yaml`: 教室环境配置
+## Monitoring and Logging
 
-### 主要配置项
+### Production Monitoring
+- System resource monitoring
+- Audio quality metrics
+- Performance benchmarking
+- Error tracking and alerting
+- Log aggregation and rotation
 
-```json
-{
-  "system": {
-    "environment": "production",
-    "debug": false
-  },
-  "audio": {
-    "sample_rate": 48000,
-    "channels": 8,
-    "frame_size": 480
-  },
-  "services": {
-    "capture": {"enabled": true},
-    "ssl": {"enabled": true},
-    "beamformer": {"enabled": true},
-    "aec": {"enabled": true},
-    "denoise": {"enabled": true},
-    "agc": {"enabled": true}
-  }
-}
-```
+### Development Monitoring
+- Real-time debugging information
+- Performance profiling
+- Test coverage reporting
+- Code quality metrics
+- Development server logs
 
-## 部署后验证
+## Troubleshooting
 
-### 1. 服务状态检查
+### Common Issues
+1. **Audio Device Access**: Permission and driver issues
+2. **Real-time Performance**: Kernel and system configuration
+3. **Dependencies**: Platform-specific package installation
+4. **Configuration**: YAML syntax and validation errors
+5. **Network**: Firewall and port configuration
 
-```bash
-# 检查系统服务
-systemctl status audio-processing
-systemctl status audio-processing-web
-systemctl status nginx
+### Platform-Specific Issues
+- **Linux**: ALSA configuration, real-time permissions
+- **macOS**: CoreAudio permissions, Homebrew issues
+- **Windows**: Audio driver compatibility, Visual Studio tools
 
-# 或检查Docker服务
-docker-compose ps
-```
+## Support and Documentation
 
-### 2. 功能验证
+- **Linux Deployment**: See `deploy/linux/README.md`
+- **macOS Development**: See `deploy/macos/README.md`  
+- **Windows Development**: See `deploy/windows/README.md`
+- **API Documentation**: Generated from source code
+- **Configuration Reference**: YAML schema documentation
 
-```bash
-# 健康检查
-curl http://localhost/health
+## Contributing
 
-# API测试
-curl http://localhost/api/status
-
-# WebSocket连接测试
-wscat -c ws://localhost/ws
-```
-
-### 3. 性能测试
-
-```bash
-# 运行性能测试
-python3 deploy/scripts/performance_test.py
-
-# 检查系统资源
-htop
-iotop
-```
-
-## 监控和维护
-
-### 访问监控界面
-
-- **Web控制界面**: http://localhost
-- **Prometheus监控**: http://localhost:9090
-- **Grafana仪表板**: http://localhost:3000
-- **Kibana日志**: http://localhost:5601
-
-### 日常维护任务
-
-```bash
-# 每日健康检查
-/opt/audio-processing-system/scripts/daily_check.sh
-
-# 每周维护
-/opt/audio-processing-system/scripts/weekly_maintenance.sh
-
-# 配置备份
-/opt/audio-processing-system/scripts/backup_config.sh
-```
-
-## 故障排除
-
-### 常见问题
-
-1. **服务启动失败**
-   ```bash
-   # 查看日志
-   journalctl -u audio-processing -f
-   
-   # 检查配置
-   python3 -c "import json; json.load(open('/opt/audio-processing-system/config/audio_system.json'))"
-   ```
-
-2. **音频设备问题**
-   ```bash
-   # 检查音频设备
-   arecord -l
-   aplay -l
-   
-   # 测试音频
-   arecord -D hw:0,0 -f S16_LE -r 48000 -c 2 -d 5 test.wav
-   ```
-
-3. **网络连接问题**
-   ```bash
-   # 检查端口
-   netstat -tlnp | grep -E ':(80|8000)'
-   
-   # 检查防火墙
-   ufw status
-   ```
-
-### 获取支持
-
-- **技术文档**: 查看 `maintenance_guide.md`
-- **日志收集**: 运行 `collect_logs.sh` 脚本
-- **问题报告**: 提交到项目Issue页面
-
-## 升级和更新
-
-### 系统升级
-
-```bash
-# 备份当前配置
-/opt/audio-processing-system/scripts/backup_config.sh
-
-# 下载新版本
-wget https://github.com/audio-processing-system/releases/latest/audio-processing-system.tar.gz
-
-# 运行升级脚本
-./upgrade.sh
-```
-
-### 配置更新
-
-```bash
-# 热更新配置
-curl -X POST http://localhost/api/config/reload
-
-# 重启服务更新
-systemctl restart audio-processing
-```
-
-## 安全注意事项
-
-### 网络安全
-
-- 配置防火墙规则
-- 启用HTTPS (生产环境)
-- 限制API访问权限
-- 定期更新系统补丁
-
-### 数据安全
-
-- 定期备份配置和数据
-- 加密敏感配置信息
-- 监控异常访问行为
-- 实施访问控制策略
-
-## 许可证
-
-本部署方案遵循项目主许可证。详情请查看项目根目录的 LICENSE 文件。
-
-## 贡献
-
-欢迎提交部署相关的改进建议和问题报告。请遵循项目的贡献指南。
-
----
-
-**版本**: v1.0.0  
-**更新日期**: 2024年1月  
-**维护者**: Audio Processing System Team
+When adding new deployment features:
+1. Update platform-specific scripts
+2. Add configuration templates
+3. Update documentation
+4. Test on target platforms
+5. Update CI/CD pipelines

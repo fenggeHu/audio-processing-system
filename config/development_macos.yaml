@@ -1,0 +1,202 @@
+# Production Audio System - macOS Development Configuration
+# Optimized for development and testing on macOS with CoreAudio
+
+system:
+  platform: "macos"
+  environment: "development"
+  log_level: "DEBUG"
+  debug_mode: true
+  
+  # Development settings
+  development:
+    hot_reload: true
+    profiling: true
+    mock_devices: false  # Use real devices for testing
+    test_signals: true   # Enable test signal generation
+
+audio:
+  # CoreAudio configuration
+  coreaudio:
+    device: "default"
+    sample_rate: 48000
+    bit_depth: 24
+    channels: 2
+    buffer_size: 512
+    periods: 2
+    
+  # Built-in audio
+  builtin:
+    input_device: "Built-in Microphone"
+    output_device: "Built-in Output"
+    sample_rate: 44100
+    bit_depth: 16
+    channels: 2
+    
+  # USB Audio (for professional interfaces)
+  usb_audio:
+    device: "USB Audio CODEC"
+    sample_rate: 48000
+    bit_depth: 24
+    channels: 8
+    buffer_size: 256
+    
+  # Input configuration
+  input:
+    auto_detect: true
+    default_sources: "all"
+    hot_plug_detection: true
+    quality_monitoring: true
+    
+  # Output configuration
+  output:
+    device: "default"
+    channels: 2
+    monitoring: true
+
+processing:
+  # Component configuration (relaxed for development)
+  components:
+    webrtc_aec:
+      enabled: true
+      aggressive_mode: false
+      delay_logging: true
+      
+    webrtc_agc:
+      enabled: true
+      target_level: 3
+      compression_gain: 9
+      limiter: true
+      
+    webrtc_ns:
+      enabled: true
+      suppression_level: 1  # Less aggressive for development
+      
+    beamforming:
+      enabled: false  # Disabled by default in development
+      algorithm: "mvdr"
+      num_beams: 1
+      
+    ssl:
+      enabled: true
+      algorithm: "gcc_phat"
+      frame_size: 1024
+      
+  # Pipeline configuration
+  pipeline:
+    buffer_size: 2048  # Larger buffer for stability
+    max_latency_ms: 50  # More relaxed latency
+    thread_priority: 50  # Lower priority for development
+    
+  # Performance monitoring
+  monitoring:
+    enabled: true
+    metrics_interval: 2.0
+    performance_logging: true
+
+web_interface:
+  host: "127.0.0.1"  # Localhost only for development
+  port: 8080
+  websocket_port: 8081
+  static_files: "web"
+  
+  # Development settings
+  development:
+    auto_reload: true
+    debug_toolbar: true
+    cors_enabled: true
+    
+  # Security (relaxed for development)
+  security:
+    cors_enabled: true
+    allowed_origins: ["http://localhost:8080", "http://127.0.0.1:8080"]
+    api_key_required: false
+
+logging:
+  level: "DEBUG"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
+  
+  # File logging
+  files:
+    main: "logs/main.log"
+    performance: "logs/performance.log"
+    debug: "logs/debug.log"
+    
+  # Console logging
+  console:
+    enabled: true
+    level: "INFO"
+    
+  # Rotation (smaller files for development)
+  rotation:
+    max_size: "10MB"
+    backup_count: 5
+
+monitoring:
+  # System monitoring (relaxed thresholds)
+  system:
+    cpu_threshold: 90.0
+    memory_threshold: 90.0
+    disk_threshold: 95.0
+    
+  # Audio monitoring
+  audio:
+    latency_threshold: 100.0  # milliseconds
+    dropout_threshold: 1.0    # percentage
+    quality_threshold: 0.6    # 0-1 scale
+    
+  # Alerts (disabled for development)
+  alerts:
+    enabled: false
+    email_notifications: false
+    webhook_url: null
+
+# Development and debugging
+development:
+  # Profiling
+  profiling:
+    enabled: true
+    output_dir: "logs/profiling"
+    line_profiler: true
+    memory_profiler: true
+    
+  # Testing
+  testing:
+    mock_devices: false
+    test_signals: true
+    unit_test_mode: false
+    
+  # Visualization
+  visualization:
+    real_time_plots: true
+    save_plots: true
+    plot_dir: "logs/plots"
+    
+  # Hot reload
+  hot_reload:
+    enabled: true
+    watch_dirs: ["src", "config"]
+    ignore_patterns: ["*.pyc", "__pycache__", ".git"]
+    
+  # Debug tools
+  debug:
+    breakpoints_enabled: true
+    step_through_mode: false
+    verbose_logging: true
+
+# macOS specific settings
+macos:
+  # CoreAudio specific
+  coreaudio:
+    use_default_device: true
+    enable_exclusive_mode: false
+    
+  # System integration
+  system:
+    dock_icon: true
+    menu_bar: true
+    notifications: true
+    
+  # Performance
+  performance:
+    use_accelerate_framework: true
+    metal_compute: false  # Disabled for compatibility

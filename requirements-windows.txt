@@ -1,0 +1,46 @@
+# Windows-specific dependencies (WASAPI support)
+# Install with: pip install -r requirements-windows.txt
+
+# Windows audio APIs
+pycaw>=20230407; sys_platform=="win32"
+comtypes>=1.2.0; sys_platform=="win32"
+pywin32>=306; sys_platform=="win32"
+
+# Windows-specific audio processing
+sounddevice>=0.4.6
+resampy>=0.4.2
+
+# Windows system monitoring
+psutil>=5.9.0
+py-cpuinfo>=9.0.0
+wmi>=1.5.1; sys_platform=="win32"
+
+# Windows-specific utilities
+pywin32-ctypes>=0.2.2; sys_platform=="win32"
+pythonnet>=3.0.1; sys_platform=="win32"
+
+# Performance optimization for Windows
+numba>=0.57.0
+cython>=3.0.0
+
+# Windows notification support
+win10toast>=0.9; sys_platform=="win32"
+plyer>=2.1.0; sys_platform=="win32"
+
+# Windows service support
+pywin32-ctypes>=0.2.2; sys_platform=="win32"
+python-windows-service>=1.0.0; sys_platform=="win32"
+
+# Windows-specific logging
+pywin32>=306; sys_platform=="win32"
+
+# Memory and performance monitoring
+memory-profiler>=0.61.0
+pympler>=0.9
+
+# Windows audio device management
+pycaw>=20230407; sys_platform=="win32"
+windows-audio-devices>=1.0.0; sys_platform=="win32"
+
+# DirectSound support
+pygame>=2.5.0; sys_platform=="win32"

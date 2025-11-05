@@ -1,0 +1,38 @@
+# macOS-specific dependencies (CoreAudio support)
+# Install with: pip install -r requirements-macos.txt
+
+# CoreAudio and macOS audio frameworks
+# Install PortAudio via Homebrew: brew install portaudio
+pycaw>=20230407; sys_platform=="darwin"
+pyobjc-framework-AVFoundation>=9.2; sys_platform=="darwin"
+pyobjc-framework-CoreAudio>=9.2; sys_platform=="darwin"
+pyobjc-framework-AudioToolbox>=9.2; sys_platform=="darwin"
+
+# macOS-specific audio processing
+sounddevice>=0.4.6
+resampy>=0.4.2
+
+# macOS system monitoring
+psutil>=5.9.0
+py-cpuinfo>=9.0.0
+
+# macOS-specific utilities
+pyobjc-core>=9.2; sys_platform=="darwin"
+pyobjc-framework-Cocoa>=9.2; sys_platform=="darwin"
+
+# Performance optimization for macOS
+numba>=0.57.0
+cython>=3.0.0
+
+# macOS notification support
+pync>=2.0.3; sys_platform=="darwin"
+
+# macOS-specific logging and system integration
+oslog>=0.1.1; sys_platform=="darwin"
+
+# Memory and performance monitoring
+memory-profiler>=0.61.0
+pympler>=0.9
+
+# macOS audio device enumeration
+pyaudio-mac>=0.2.11; sys_platform=="darwin"

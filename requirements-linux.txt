@@ -1,0 +1,36 @@
+# Linux-specific dependencies (ALSA support)
+# Install with: pip install -r requirements-linux.txt
+
+# ALSA development libraries (install via system package manager)
+# sudo apt-get install libasound2-dev portaudio19-dev
+# sudo yum install alsa-lib-devel portaudio-devel
+
+# Python packages for Linux ALSA support
+pyalsaaudio>=0.10.0
+python-rtmidi>=1.5.0
+
+# Linux-specific audio processing
+sounddevice>=0.4.6
+resampy>=0.4.2
+
+# System monitoring for Linux
+psutil>=5.9.0
+py-cpuinfo>=9.0.0
+
+# Real-time scheduling support
+schedule>=1.2.0
+
+# Linux GPIO and hardware interface (for embedded systems)
+RPi.GPIO>=0.7.1; platform_machine=="armv7l" or platform_machine=="aarch64"
+gpiozero>=1.6.2; platform_machine=="armv7l" or platform_machine=="aarch64"
+
+# Performance optimization for Linux
+numba>=0.57.0
+cython>=3.0.0
+
+# Linux-specific logging
+systemd-python>=235; sys_platform=="linux"
+
+# Memory mapping and shared memory
+mmap>=1.0.0
+posix-ipc>=1.1.1; sys_platform=="linux"

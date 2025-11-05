@@ -1,0 +1,173 @@
+# Production Audio System - Linux Configuration
+# Optimized for professional audio processing in Linux environments
+
+system:
+  platform: "linux"
+  environment: "production"
+  log_level: "INFO"
+  debug_mode: false
+  
+  # Real-time configuration
+  realtime:
+    enabled: true
+    priority: 95
+    scheduler: "SCHED_FIFO"
+    cpu_affinity: [2, 3]  # Bind to specific CPUs
+    memory_lock: true
+
+audio:
+  # ALSA configuration
+  alsa:
+    device: "hw:0,0"
+    sample_rate: 48000
+    bit_depth: 24
+    channels: 8
+    period_size: 256
+    buffer_size: 1024
+    periods: 4
+    
+  # Professional audio interface
+  professional:
+    device: "hw:1,0"  # USB Audio Class 2.0 device
+    sample_rate: 96000
+    bit_depth: 32
+    channels: 8
+    period_size: 128
+    buffer_size: 512
+    periods: 2
+    
+  # Input configuration
+  input:
+    auto_detect: true
+    default_sources: "all"  # or specify list: ["hw:0,0", "hw:1,0"]
+    hot_plug_detection: true
+    quality_monitoring: true
+    
+  # Output configuration
+  output:
+    device: "hw:0,0"
+    channels: 2
+    monitoring: true
+
+processing:
+  # Component configuration
+  components:
+    webrtc_aec:
+      enabled: true
+      aggressive_mode: false
+      delay_logging: true
+      
+    webrtc_agc:
+      enabled: true
+      target_level: 3
+      compression_gain: 9
+      limiter: true
+      
+    webrtc_ns:
+      enabled: true
+      suppression_level: 2
+      
+    beamforming:
+      enabled: true
+      algorithm: "mvdr"  # MVDR, LCMV, or GSC
+      num_beams: 1
+      
+    ssl:
+      enabled: true
+      algorithm: "gcc_phat"
+      frame_size: 1024
+      
+  # Pipeline configuration
+  pipeline:
+    buffer_size: 4096
+    max_latency_ms: 10
+    thread_priority: 90
+    
+  # Performance monitoring
+  monitoring:
+    enabled: true
+    metrics_interval: 1.0
+    performance_logging: true
+
+web_interface:
+  host: "0.0.0.0"
+  port: 8080
+  websocket_port: 8081
+  static_files: "/opt/production-audio-system/web"
+  
+  # Security
+  security:
+    cors_enabled: true
+    allowed_origins: ["http://localhost:8080"]
+    api_key_required: false
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  files:
+    main: "/opt/production-audio-system/logs/main.log"
+    performance: "/opt/production-audio-system/logs/performance.log"
+    debug: "/opt/production-audio-system/logs/debug.log"
+    
+  # Rotation
+  rotation:
+    max_size: "100MB"
+    backup_count: 10
+    
+  # Syslog integration
+  syslog:
+    enabled: true
+    facility: "local0"
+
+monitoring:
+  # System monitoring
+  system:
+    cpu_threshold: 80.0
+    memory_threshold: 85.0
+    disk_threshold: 90.0
+    
+  # Audio monitoring
+  audio:
+    latency_threshold: 15.0  # milliseconds
+    dropout_threshold: 0.1   # percentage
+    quality_threshold: 0.8   # 0-1 scale
+    
+  # Alerts
+  alerts:
+    enabled: true
+    email_notifications: false
+    webhook_url: null
+    
+# Hardware-specific optimizations
+hardware:
+  # CPU optimization
+  cpu:
+    governor: "performance"
+    disable_c_states: true
+    isolate_cpus: [2, 3]
+    
+  # Memory optimization
+  memory:
+    huge_pages: false
+    swap_disabled: true
+    
+  # I/O optimization
+  io:
+    scheduler: "deadline"
+    read_ahead: 256
+
+# Development and debugging
+development:
+  profiling:
+    enabled: false
+    output_dir: "/opt/production-audio-system/logs/profiling"
+    
+  testing:
+    mock_devices: false
+    test_signals: false
+    
+  visualization:
+    real_time_plots: true
+    save_plots: false

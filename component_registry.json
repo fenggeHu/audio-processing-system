@@ -1,0 +1,135 @@
+{
+  "src.audio_core.component_registry.AECComponent": {
+    "component_id": "src.audio_core.component_registry.AECComponent",
+    "name": "AEC",
+    "description": "Acoustic Echo Cancellation for WebRTC",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.WEBRTC",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.690482",
+    "last_update": "2025-11-05 09:37:09.690483",
+    "performance_profile": {}
+  },
+  "src.audio_core.component_registry.AGCComponent": {
+    "component_id": "src.audio_core.component_registry.AGCComponent",
+    "name": "AGC",
+    "description": "Automatic Gain Control for WebRTC",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.WEBRTC",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.690827",
+    "last_update": "2025-11-05 09:37:09.690828",
+    "performance_profile": {}
+  },
+  "src.audio_core.component_registry.NSComponent": {
+    "component_id": "src.audio_core.component_registry.NSComponent",
+    "name": "NS",
+    "description": "Noise Suppression for WebRTC",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.WEBRTC",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.691242",
+    "last_update": "2025-11-05 09:37:09.691244",
+    "performance_profile": {}
+  },
+  "src.audio_core.component_registry.BeamformingComponent": {
+    "component_id": "src.audio_core.component_registry.BeamformingComponent",
+    "name": "Beamforming",
+    "description": "Directional beamforming for spatial audio",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.SPATIAL_AUDIO",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.691580",
+    "last_update": "2025-11-05 09:37:09.691581",
+    "performance_profile": {}
+  },
+  "src.audio_core.component_registry.SourceLocalizationComponent": {
+    "component_id": "src.audio_core.component_registry.SourceLocalizationComponent",
+    "name": "Source Localization",
+    "description": "Audio source localization for spatial audio",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.SPATIAL_AUDIO",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.691951",
+    "last_update": "2025-11-05 09:37:09.691952",
+    "performance_profile": {}
+  },
+  "src.audio_core.component_registry.SpatialFilterComponent": {
+    "component_id": "src.audio_core.component_registry.SpatialFilterComponent",
+    "name": "Spatial Filter",
+    "description": "Spatial filtering for multi-channel audio",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.SPATIAL_AUDIO",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.692325",
+    "last_update": "2025-11-05 09:37:09.692325",
+    "performance_profile": {}
+  },
+  "src.audio_core.component_registry.MultiChannelProcessorComponent": {
+    "component_id": "src.audio_core.component_registry.MultiChannelProcessorComponent",
+    "name": "Multi-Channel Processor",
+    "description": "Multi-channel audio processing for spatial audio",
+    "version": {
+      "major": 1,
+      "minor": 0,
+      "patch": 0,
+      "build": ""
+    },
+    "category": "ComponentCategory.SPATIAL_AUDIO",
+    "dependencies": [],
+    "status": "ComponentStatus.AVAILABLE",
+    "file_path": "/Users/max/pycodes/audio-processing-system/src/audio_core/component_registry.py",
+    "checksum": "6a43c09341e544d5b41b148e7d28db82",
+    "registration_time": "2025-11-05 09:37:09.692741",
+    "last_update": "2025-11-05 09:37:09.692742",
+    "performance_profile": {}
+  }
+}

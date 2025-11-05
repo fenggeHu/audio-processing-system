@@ -1,0 +1,47 @@
+[Unit]
+Description=Production Audio Processing System
+After=network.target sound.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=audio-user
+Group=audio
+WorkingDirectory=/opt/production-audio-system
+Environment=PYTHONPATH=/opt/production-audio-system
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/production-audio-system/venv/bin/python -m src.main
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=production-audio-system
+
+# Real-time scheduling
+Nice=-10
+IOSchedulingClass=1
+IOSchedulingPriority=4
+
+# Security settings
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/production-audio-system/logs
+ReadWritePaths=/opt/production-audio-system/data
+ReadWritePaths=/tmp
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Resource limits
+LimitNOFILE=65536
+LimitMEMLOCK=infinity
+LimitRTPRIO=95
+
+# Audio device access
+SupplementaryGroups=audio
+
+[Install]
+WantedBy=multi-user.target
